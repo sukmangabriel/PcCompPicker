@@ -2,6 +2,7 @@ import type {
   CompatibilityIssue,
   Configuration,
 } from '../types/hardware'
+import { calculateEstimatedTdp } from './calculations'
 
 const pcieVersionRank = {
   'PCIe 3.0': 3,
@@ -146,6 +147,70 @@ export function checkCaseCompatibility(
         message: `Zračni hladnjak visine ${cooling.heightMm} mm premašuje maksimalno podržanu visinu od ${pcCase.maxCpuCoolerHeightMm} mm.`,
       })
     }
+  }
+
+  return issues
+}
+
+export function checkCoolingCompatibility(
+  configuration: Configuration,
+): CompatibilityIssue[] {
+  const issues: CompatibilityIssue[] = []
+  const { cpu, cooling } = configuration
+
+  if (cpu?.category !== 'cpu' || cooling?.category !== 'cooling') {
+    return issues
+  }
+
+  if (!cooling.socketSupport.includes(cpu.socket)) {
+    issues.push({
+      severity: 'error',
+      message: `Zračni hladnjak ne podržava socket ${cpu.socket} odabranog procesora.`,
+    })
+  }
+
+  if (cooling.maxTdpW < cpu.tdp) {
+    issues.push({
+      severity: 'error',
+      message: `Zračni hladnjak podržava najviše ${cooling.maxTdpW} W, a procesor ima TDP od ${cpu.tdp} W.`,
+    })
+  }
+
+  return issues
+}
+
+export function checkPowerSupplyCompatibility(
+  configuration: Configuration,
+): CompatibilityIssue[] {
+  const issues: CompatibilityIssue[] = []
+  const { motherboard, psu } = configuration
+
+  if (motherboard?.category === 'motherboard' && psu?.category === 'psu') {
+    if (!psu.cpuPowerConnectors.includes(motherboard.cpuPowerConnector)) {
+      issues.push({
+        severity: 'error',
+        message: `Matična ploča zahtijeva CPU priključak ${motherboard.cpuPowerConnector}, koji nije dostupan na odabranom napajanju.`,
+      })
+    }
+  }
+
+  if (psu?.category !== 'psu') {
+    return issues
+  }
+
+  const estimatedTdp = calculateEstimatedTdp(configuration)
+  const recommendedWattage = estimatedTdp * 1.25
+
+  if (psu.wattage < estimatedTdp) {
+    issues.push({
+      severity: 'error',
+      message: `Napajanje od ${psu.wattage} W slabije je od procijenjene potrošnje konfiguracije od ${estimatedTdp} W.`,
+    })
+  } else if (psu.wattage < recommendedWattage) {
+    issues.push({
+      severity: 'warning',
+      message: `Napajanje od ${psu.wattage} W pokriva procijenjenih ${estimatedTdp} W, ali nema preporučenu rezervu od 25 % (${Math.ceil(recommendedWattage)} W).`,
+    })
   }
 
   return issues
