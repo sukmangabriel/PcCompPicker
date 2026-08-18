@@ -101,13 +101,6 @@ export function LandingPage() {
 
   return (
     <main className="landing-page">
-      <header className="landing-header">
-        <div className="brand-block">
-          <span className="brand-mark">PC</span>
-          <span>PcCompPicker</span>
-        </div>
-      </header>
-
       <section className="hero-section hero-section--centered">
         <div className="hero-copy hero-copy--centered">
           <p className="eyebrow">Projektni konfigurator</p>

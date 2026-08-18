@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import './App.css'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navbar } from './components/Navbar'
 import { ConfiguratorPage } from './pages/ConfiguratorPage'
 import { LandingPage } from './pages/LandingPage'
+import { UserConfigurations } from './pages/UserConfigurations'
 import type { Configuration } from './types/hardware'
 
 function App() {
@@ -10,6 +12,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      <Navbar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route
@@ -21,6 +24,7 @@ function App() {
             />
           }
         />
+        <Route path="/moje-konfiguracije" element={<UserConfigurations />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
