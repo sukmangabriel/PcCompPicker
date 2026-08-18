@@ -75,6 +75,122 @@
   min-width: 120px;
 }
 
+.auth-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(4px);
+}
+
+.auth-modal {
+  width: min(100%, 500px);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 28px;
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.2);
+  padding: 24px;
+}
+
+.auth-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.auth-modal__header h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2vw, 2.2rem);
+  letter-spacing: -0.05em;
+}
+
+.auth-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #0f172a;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  text-align: center;
+}
+
+.auth-modal__tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.auth-modal__tab {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: #f8fafc;
+  color: #475569;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-modal__tab.active {
+  background: linear-gradient(135deg, #ede9fe, #dbeafe);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: #312e81;
+}
+
+.auth-modal__form {
+  display: grid;
+  gap: 14px;
+}
+
+.input-field {
+  display: grid;
+  gap: 8px;
+}
+
+.input-field__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  background: #fff;
+  color: #0f172a;
+  padding: 0.8rem 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: rgba(124, 58, 237, 0.7);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
+}
+
+.auth-modal__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
 .landing-page,
 .config-layout,
 .page-shell {

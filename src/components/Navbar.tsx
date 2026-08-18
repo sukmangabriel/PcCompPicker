@@ -1,6 +1,10 @@
 import { NavLink } from 'react-router-dom'
 
-export function Navbar() {
+type NavbarProps = {
+  onOpenAuth: () => void
+}
+
+export function Navbar({ onOpenAuth }: NavbarProps) {
   return (
     <header className="navbar">
       <div className="navbar__inner">
@@ -25,6 +29,7 @@ export function Navbar() {
           type="button"
           className="button button--ghost button--nav"
           aria-label="Prijava"
+          onClick={onOpenAuth}
         >
           Prijava/Registracija
         </button>
