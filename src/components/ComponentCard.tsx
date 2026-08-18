@@ -8,13 +8,19 @@ type ComponentCardProps = {
   summary: string
 }
 
-export function ComponentCard({ component, selected, onSelect, summary }: ComponentCardProps) {
+export function ComponentCard({
+  component,
+  selected,
+  onSelect,
+  summary,
+}: ComponentCardProps) {
   return (
     <Button
       key={component.id}
       variant="card"
       className={selected ? 'component-card selected' : 'component-card'}
       aria-pressed={selected}
+      aria-label={`Odaberi ${component.name}`}
       onClick={onSelect}
     >
       <img src={component.image} alt={component.name} />

@@ -12,8 +12,15 @@ import { motherboards } from './data/motherboards'
 import { psus } from './data/psus'
 import { rams } from './data/rams'
 import { storages } from './data/storages'
-import type { Component, ComponentCategory, Configuration } from './types/hardware'
-import { calculateEstimatedTdp, calculateTotalPrice } from './utils/calculations'
+import type {
+  Component,
+  ComponentCategory,
+  Configuration,
+} from './types/hardware'
+import {
+  calculateEstimatedTdp,
+  calculateTotalPrice,
+} from './utils/calculations'
 import { checkCompatibility } from './utils/compatibility'
 
 type ViewMode = 'landing' | 'catalog'
@@ -33,14 +40,46 @@ const categoryMeta: Record<
   ComponentCategory,
   { icon: string; title: string; description: string }
 > = {
-  cpu: { icon: '🧠', title: 'Procesor', description: 'Mozak sustava i osnovna snaga računala.' },
-  gpu: { icon: '🎮', title: 'Grafika', description: 'Učinkovitost za igranje i vizualni rad.' },
-  ram: { icon: '⚡', title: 'Memorija', description: 'Brzina i kapacitet za sve zadatke.' },
-  storage: { icon: '💾', title: 'Pohrana', description: 'Brzina i prostor za podatke i igre.' },
-  motherboard: { icon: '🧩', title: 'Matična ploča', description: 'Osnova na kojoj sve komunicira.' },
-  psu: { icon: '🔋', title: 'Napajanje', description: 'Stabilnost i dovoljna rezervna snaga.' },
-  case: { icon: '🛡️', title: 'Kućište', description: 'Fizičko smještanje i ventilacija.' },
-  cooling: { icon: '❄️', title: 'Hlađenje', description: 'Upravljanje temperaturom i TDP-om.' },
+  cpu: {
+    icon: '🧠',
+    title: 'Procesor',
+    description: 'Mozak sustava i osnovna snaga računala.',
+  },
+  gpu: {
+    icon: '🎮',
+    title: 'Grafika',
+    description: 'Učinkovitost za igranje i vizualni rad.',
+  },
+  ram: {
+    icon: '⚡',
+    title: 'Memorija',
+    description: 'Brzina i kapacitet za sve zadatke.',
+  },
+  storage: {
+    icon: '💾',
+    title: 'Pohrana',
+    description: 'Brzina i prostor za podatke i igre.',
+  },
+  motherboard: {
+    icon: '🧩',
+    title: 'Matična ploča',
+    description: 'Osnova na kojoj sve komunicira.',
+  },
+  psu: {
+    icon: '🔋',
+    title: 'Napajanje',
+    description: 'Stabilnost i dovoljna rezervna snaga.',
+  },
+  case: {
+    icon: '🛡️',
+    title: 'Kućište',
+    description: 'Fizičko smještanje i ventilacija.',
+  },
+  cooling: {
+    icon: '❄️',
+    title: 'Hlađenje',
+    description: 'Upravljanje temperaturom i TDP-om.',
+  },
 }
 
 const catalog: Record<ComponentCategory, Component[]> = {
@@ -82,9 +121,8 @@ function getComponentSummary(component: Component): string {
 function App() {
   const [view, setView] = useState<ViewMode>('landing')
   const [activeCategory, setActiveCategory] = useState<ComponentCategory>('cpu')
-  const [selectedLandingCategory, setSelectedLandingCategory] = useState<ComponentCategory | null>(
-    null,
-  )
+  const [selectedLandingCategory, setSelectedLandingCategory] =
+    useState<ComponentCategory | null>(null)
   const [configuration, setConfiguration] = useState<Configuration>({})
   const [isSummaryOpen, setIsSummaryOpen] = useState(true)
 
@@ -98,7 +136,8 @@ function App() {
     [configuration],
   )
 
-  const selectedComponentCount = Object.values(configuration).filter(Boolean).length
+  const selectedComponentCount =
+    Object.values(configuration).filter(Boolean).length
 
   const compatibility = useMemo(
     () => checkCompatibility(configuration),
@@ -142,19 +181,27 @@ function App() {
               <p className="eyebrow">Projektni konfigurator</p>
               <h1>Izgradi savršeno računalo bez problema s kompatibilnošću.</h1>
               <p className="hero-text">
-                Odaberi procesor, grafičku karticu, memoriju, kućište i napajanje.
-                Aplikacija će odmah provjeriti jesu li sve komponente međusobno usklađene.
+                Odaberi procesor, grafičku karticu, memoriju, kućište i
+                napajanje. Aplikacija će odmah provjeriti jesu li sve komponente
+                međusobno usklađene.
               </p>
 
               <div className="hero-actions hero-actions--centered">
-                <Button variant="primary" onClick={() => openCatalog('cpu')}>
+                <Button
+                  variant="primary"
+                  onClick={() => openCatalog('cpu')}
+                  aria-label="Izgradi konfiguraciju"
+                >
                   Izgradi konfiguraciju
                 </Button>
               </div>
             </div>
           </section>
 
-          <section className="category-showcase" aria-label="Kartice komponenti">
+          <section
+            className="category-showcase"
+            aria-label="Kartice komponenti"
+          >
             <div className="landing-category-list">
               {categories.map((category) => {
                 const isSelected = selectedLandingCategory === category
@@ -182,7 +229,10 @@ function App() {
 
                         <div className="landing-component-rows">
                           {catalog[category].map((component) => (
-                            <div key={component.id} className="landing-component-row">
+                            <div
+                              key={component.id}
+                              className="landing-component-row"
+                            >
                               <div>
                                 <strong>{component.name}</strong>
                                 <small>{component.manufacturer}</small>
@@ -216,12 +266,21 @@ function App() {
               </Button>
             </header>
 
-            <div className="category-tabs" aria-label="Kategorije komponenti">
+            <div
+              className="category-tabs"
+              role="tablist"
+              aria-label="Kategorije komponenti"
+            >
               {categories.map((category) => (
                 <Button
                   key={category}
+                  id={`tab-${category}`}
+                  role="tab"
                   variant="tab"
                   active={activeCategory === category}
+                  aria-selected={activeCategory === category}
+                  aria-controls={`panel-${category}`}
+                  tabIndex={activeCategory === category ? 0 : -1}
                   onClick={() => setActiveCategory(category)}
                 >
                   {categoryLabels[category]}
@@ -229,9 +288,14 @@ function App() {
               ))}
             </div>
 
-            <div className="catalog-grid">
+            <div
+              id={`panel-${activeCategory}`}
+              className="catalog-grid"
+              role="tabpanel"
+            >
               {catalog[activeCategory].map((component) => {
-                const selected = configuration[activeCategory]?.id === component.id
+                const selected =
+                  configuration[activeCategory]?.id === component.id
 
                 return (
                   <ComponentCard

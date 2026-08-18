@@ -1,7 +1,4 @@
-import type {
-  CompatibilityIssue,
-  Configuration,
-} from '../types/hardware'
+import type { CompatibilityIssue, Configuration } from '../types/hardware'
 import { calculateEstimatedTdp } from './calculations'
 
 export function checkPowerSupplyCompatibility(

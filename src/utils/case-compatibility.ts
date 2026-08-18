@@ -1,7 +1,4 @@
-import type {
-  CompatibilityIssue,
-  Configuration,
-} from '../types/hardware'
+import type { CompatibilityIssue, Configuration } from '../types/hardware'
 
 export function checkCaseCompatibility(
   configuration: Configuration,
@@ -11,7 +8,9 @@ export function checkCaseCompatibility(
   const pcCase = configuration.case
 
   if (motherboard?.category === 'motherboard' && pcCase?.category === 'case') {
-    if (!pcCase.supportedMotherboardFormFactors.includes(motherboard.formFactor)) {
+    if (
+      !pcCase.supportedMotherboardFormFactors.includes(motherboard.formFactor)
+    ) {
       issues.push({
         severity: 'error',
         message: `Kućište ne podržava ${motherboard.formFactor} format odabrane matične ploče.`,

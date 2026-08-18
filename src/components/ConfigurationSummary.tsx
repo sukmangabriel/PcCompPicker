@@ -1,5 +1,9 @@
 import { Button } from './Button'
-import type { CompatibilityResult, ComponentCategory, Configuration } from '../types/hardware'
+import type {
+  CompatibilityResult,
+  ComponentCategory,
+  Configuration,
+} from '../types/hardware'
 
 type ConfigurationSummaryProps = {
   totalPrice: number
@@ -26,18 +30,31 @@ export function ConfigurationSummary({
   onToggle,
   onRemoveComponent,
 }: ConfigurationSummaryProps) {
-  const statusLabel = compatibility.compatible ? 'Kompatibilno' : 'Potrebna dorada'
+  const statusLabel = compatibility.compatible
+    ? 'Kompatibilno'
+    : 'Potrebna dorada'
 
   return (
     <aside className="summary-panel" aria-live="polite">
-      <div className="summary-card">
+      <div className="summary-card" id="configuration-summary-panel">
         <div className="summary-header">
           <div>
             <p className="eyebrow">Pregled</p>
             <h2>Konfiguracija</h2>
           </div>
 
-          <Button variant="secondary" className="summary-toggle-button" onClick={onToggle}>
+          <Button
+            variant="secondary"
+            className="summary-toggle-button"
+            onClick={onToggle}
+            aria-expanded={isOpen}
+            aria-controls="configuration-summary-panel"
+            aria-label={
+              isOpen
+                ? 'Umanji pregled konfiguracije'
+                : 'Uvećaj pregled konfiguracije'
+            }
+          >
             {isOpen ? 'Umanji' : 'Uvećaj'}
           </Button>
         </div>
@@ -55,7 +72,13 @@ export function ConfigurationSummary({
             <span>Odabrane komponente</span>
             <strong>{selectedComponentCount}</strong>
           </div>
-          <div className={compatibility.compatible ? 'status-pill ok' : 'status-pill warning'}>
+          <div
+            className={
+              compatibility.compatible
+                ? 'status-pill ok'
+                : 'status-pill warning'
+            }
+          >
             {statusLabel}
           </div>
         </div>
@@ -71,7 +94,9 @@ export function ConfigurationSummary({
                   <div key={category} className="selection-item">
                     <span>{categoryLabels[category]}</span>
                     <div className="selection-item__content">
-                      <strong>{component ? component.name : 'Nije odabrano'}</strong>
+                      <strong>
+                        {component ? component.name : 'Nije odabrano'}
+                      </strong>
                       {component && (
                         <Button
                           variant="primary"
@@ -93,13 +118,18 @@ export function ConfigurationSummary({
               {compatibility.issues.length > 0 ? (
                 <ul>
                   {compatibility.issues.map((issue, index) => (
-                    <li key={`${issue.severity}-${index}`} className={issue.severity}>
+                    <li
+                      key={`${issue.severity}-${index}`}
+                      className={issue.severity}
+                    >
                       {issue.message}
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="no-issues">Nema prijavljenih problema kompatibilnosti.</p>
+                <p className="no-issues">
+                  Nema prijavljenih problema kompatibilnosti.
+                </p>
               )}
             </div>
           </>

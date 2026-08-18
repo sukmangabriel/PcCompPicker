@@ -1,7 +1,4 @@
-import type {
-  CompatibilityIssue,
-  Configuration,
-} from '../types/hardware'
+import type { CompatibilityIssue, Configuration } from '../types/hardware'
 
 const pcieVersionRank = {
   'PCIe 3.0': 3,
@@ -56,8 +53,7 @@ export function checkMotherboardCompatibility(
 
   if (gpu?.category === 'gpu' && motherboard?.category === 'motherboard') {
     if (
-      pcieVersionRank[gpu.interface] >
-      pcieVersionRank[motherboard.pcieVersion]
+      pcieVersionRank[gpu.interface] > pcieVersionRank[motherboard.pcieVersion]
     ) {
       issues.push({
         severity: 'error',
@@ -66,7 +62,10 @@ export function checkMotherboardCompatibility(
     }
   }
 
-  if (storage?.category === 'storage' && motherboard?.category === 'motherboard') {
+  if (
+    storage?.category === 'storage' &&
+    motherboard?.category === 'motherboard'
+  ) {
     if (!motherboard.supportedStorageInterfaces.includes(storage.interface)) {
       issues.push({
         severity: 'error',
@@ -88,7 +87,8 @@ export function checkMotherboardCompatibility(
     ) {
       issues.push({
         severity: 'error',
-        message: 'Odabrani SATA uređaj nema dostupan SATA priključak na matičnoj ploči.',
+        message:
+          'Odabrani SATA uređaj nema dostupan SATA priključak na matičnoj ploči.',
       })
     }
   }

@@ -16,8 +16,15 @@ export function CategoryCard({
   onClick,
 }: CategoryCardProps) {
   return (
-    <Button variant="card" className="category-card" onClick={onClick}>
-      <span className="category-card__icon">{icon}</span>
+    <Button
+      variant="card"
+      className="category-card"
+      onClick={onClick}
+      aria-label={`Odaberi kategoriju ${title}`}
+    >
+      <span className="category-card__icon" aria-hidden="true">
+        {icon}
+      </span>
       <h2>{title}</h2>
       <p>{description}</p>
       <small>{optionCount} opcija</small>

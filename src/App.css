@@ -121,7 +121,17 @@
   padding: 0.9rem 1.2rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+button:focus-visible,
+[role='button']:focus-visible,
+[role='tab']:focus-visible {
+  outline: 3px solid rgba(124, 58, 237, 0.9);
+  outline-offset: 3px;
 }
 
 .button--primary {
@@ -139,7 +149,10 @@
   background: rgba(255, 255, 255, 0.9);
   color: #0f172a;
   box-shadow: 0 14px 24px rgba(15, 23, 42, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .button--ghost,
@@ -316,7 +329,10 @@
   cursor: pointer;
   text-align: center;
   box-shadow: 0 14px 24px rgba(15, 23, 42, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .category-card:hover,
@@ -437,7 +453,10 @@
   overflow: hidden;
   cursor: pointer;
   text-align: left;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .component-card:hover,
@@ -635,7 +654,10 @@ button.selection-item__remove {
   padding: 0;
   box-shadow: none;
   transform: none;
-  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 button.selection-item__remove:hover,
@@ -693,6 +715,17 @@ button.selection-item__remove:focus-visible {
 
   .category-showcase {
     display: grid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
