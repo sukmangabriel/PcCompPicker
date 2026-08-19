@@ -5,6 +5,7 @@ import { saveConfiguration, updateConfiguration } from '../api'
 import { Button } from '../components/Button'
 import { ComponentCard } from '../components/ComponentCard'
 import { ConfigurationSummary } from '../components/ConfigurationSummary'
+import { ConfiguratorFilterPanel } from '../components/configurator/ConfiguratorFilterPanel'
 import { cases } from '../data/cases'
 import { coolings } from '../data/coolings'
 import { cpus } from '../data/cpus'
@@ -16,6 +17,7 @@ import { storages } from '../data/storages'
 import type { Component, ComponentCategory, Configuration } from '../types/hardware'
 import { calculateEstimatedTdp, calculateTotalPrice } from '../utils/calculations'
 import { checkCompatibility } from '../utils/compatibility'
+import { defaultCategoryFilters, filterComponentsByCategory, normalizeRange, type CategoryFilterState, type RangeState } from '../components/configurator/filtering'
 
 type ConfiguratorPageProps = {
   configuration: Configuration
@@ -88,6 +90,13 @@ export function ConfiguratorPage({
   const [isSummaryOpen, setIsSummaryOpen] = useState(true)
   const [editingConfigurationId, setEditingConfigurationId] = useState<number | null>(null)
   const [configurationName, setConfigurationName] = useState('Moja konfiguracija')
+  const [categoryFilters, setCategoryFilters] = useState<Record<ComponentCategory, CategoryFilterState>>(
+    defaultCategoryFilters,
+  )
+
+  const activeFilters = categoryFilters[activeCategory] ?? defaultCategoryFilters[activeCategory]
+  const priceRange = activeFilters.priceRange as RangeState
+  const tdpRange = activeFilters.tdpRange as RangeState
 
   useEffect(() => {
     const state = location.state as
@@ -119,6 +128,10 @@ export function ConfiguratorPage({
 
   const selectedComponentCount =
     Object.values(configuration).filter(Boolean).length
+
+  const filteredComponents = useMemo(() => {
+    return filterComponentsByCategory(catalog[activeCategory], activeCategory, activeFilters, priceRange, tdpRange)
+  }, [activeCategory, activeFilters, priceRange, tdpRange])
 
   const compatibility = useMemo(
     () => checkCompatibility(configuration),
@@ -182,6 +195,48 @@ export function ConfiguratorPage({
     setSearchParams({ category })
   }
 
+  const updateRangeFilter = (
+    rangeKey: 'priceRange' | 'tdpRange',
+    bound: keyof RangeState,
+    value: number,
+    minLimit: number,
+    maxLimit: number,
+  ) => {
+    const nextRange = normalizeRange(
+      {
+        ...(activeFilters[rangeKey] as RangeState),
+        [bound]: value,
+      },
+      minLimit,
+      maxLimit,
+    )
+
+    setCategoryFilters((previous) => ({
+      ...previous,
+      [activeCategory]: {
+        ...previous[activeCategory],
+        [rangeKey]: nextRange,
+      },
+    }))
+  }
+
+  const updateCategoryFilter = (key: string, value: string | number) => {
+    setCategoryFilters((previous) => ({
+      ...previous,
+      [activeCategory]: {
+        ...previous[activeCategory],
+        [key]: value,
+      },
+    }))
+  }
+
+  const resetFilters = () => {
+    setCategoryFilters((previous) => ({
+      ...previous,
+      [activeCategory]: { ...defaultCategoryFilters[activeCategory] },
+    }))
+  }
+
   const handleSaveConfiguration = async () => {
     if (!loggedInUser || !authToken) {
       toast.error('Prijavite se kako biste spremili konfiguraciju.')
@@ -224,6 +279,18 @@ export function ConfiguratorPage({
 
   return (
     <main className="config-layout">
+      <aside className="filter-panel-wrapper">
+        <ConfiguratorFilterPanel
+          activeCategory={activeCategory}
+          activeFilters={activeFilters}
+          priceRange={priceRange}
+          tdpRange={tdpRange}
+          updateRangeFilter={updateRangeFilter}
+          updateCategoryFilter={updateCategoryFilter}
+          resetFilters={resetFilters}
+        />
+      </aside>
+
       <section className="catalog-section" aria-label="Katalog komponenti">
         <header className="catalog-header">
           <div>
@@ -254,20 +321,28 @@ export function ConfiguratorPage({
           ))}
         </div>
 
-        <div id={`panel-${activeCategory}`} className="catalog-grid" role="tabpanel">
-          {catalog[activeCategory].map((component) => {
-            const selected = configuration[activeCategory]?.id === component.id
+        <div className="catalog-content">
+          <div className="catalog-grid-wrapper">
+            <div id={`panel-${activeCategory}`} className="catalog-grid" role="tabpanel">
+              {filteredComponents.length === 0 ? (
+                <p className="empty-state">Nema komponenti koje odgovaraju odabranim filtrima.</p>
+              ) : (
+                filteredComponents.map((component) => {
+                  const selected = configuration[activeCategory]?.id === component.id
 
-            return (
-              <ComponentCard
-                key={component.id}
-                component={component}
-                selected={selected}
-                onSelect={() => handleSelect(activeCategory, component)}
-                summary={getComponentSummary(component)}
-              />
-            )
-          })}
+                  return (
+                    <ComponentCard
+                      key={component.id}
+                      component={component}
+                      selected={selected}
+                      onSelect={() => handleSelect(activeCategory, component)}
+                      summary={getComponentSummary(component)}
+                    />
+                  )
+                })
+              )}
+            </div>
+          </div>
         </div>
       </section>
 
