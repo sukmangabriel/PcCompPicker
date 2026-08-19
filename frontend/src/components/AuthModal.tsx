@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { initialUsers } from '../data/users'
 import { Button } from './Button'
 import { Input } from './Input'
 
@@ -7,10 +8,12 @@ type AuthMode = 'login' | 'register'
 type AuthModalProps = {
   isOpen: boolean
   onClose: () => void
+  onAuthSuccess: (username: string) => void
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>('login')
+  const [users, setUsers] = useState(initialUsers)
 
   const title = useMemo(
     () => (mode === 'login' ? 'Prijava' : 'Registracija'),
@@ -23,7 +26,49 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    onClose()
+
+    const formData = new FormData(event.currentTarget)
+    const username = String(formData.get('username') ?? '').trim()
+    const password = String(formData.get('password') ?? '')
+    const confirmPassword = String(formData.get('confirmPassword') ?? '')
+
+    if (!username || !password) {
+      return
+    }
+
+    if (mode === 'register') {
+      if (password !== confirmPassword) {
+        return
+      }
+
+      const exists = users.some((user) => user.username === username)
+
+      if (exists) {
+        return
+      }
+
+      setUsers((currentUsers) => [
+        ...currentUsers,
+        {
+          id: `user-${Date.now()}`,
+          username,
+          password,
+        },
+      ])
+    }
+
+    if (mode === 'login') {
+      const foundUser = users.find(
+        (user) => user.username === username && user.password === password,
+      )
+
+      if (!foundUser) {
+        return
+      }
+    }
+
+    event.currentTarget.reset()
+    onAuthSuccess(username)
   }
 
   return (

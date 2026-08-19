@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom'
 
 type NavbarProps = {
+  isLoggedIn: boolean
   onOpenAuth: () => void
+  onLogout: () => void
 }
 
-export function Navbar({ onOpenAuth }: NavbarProps) {
+export function Navbar({ isLoggedIn, onOpenAuth, onLogout }: NavbarProps) {
   return (
     <header className="navbar">
       <div className="navbar__inner">
@@ -28,10 +30,10 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
         <button
           type="button"
           className="button button--ghost button--nav"
-          aria-label="Prijava"
-          onClick={onOpenAuth}
+          aria-label={isLoggedIn ? 'Odjava' : 'Prijava'}
+          onClick={isLoggedIn ? onLogout : onOpenAuth}
         >
-          Prijava/Registracija
+          {isLoggedIn ? 'Odjava' : 'Prijava/Registracija'}
         </button>
       </div>
     </header>

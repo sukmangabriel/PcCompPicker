@@ -11,10 +11,20 @@ import type { Configuration } from './types/hardware'
 function App() {
   const [configuration, setConfiguration] = useState<Configuration>({})
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(null)
+
+  const handleAuthSuccess = (username: string) => {
+    setLoggedInUser(username)
+    setIsAuthModalOpen(false)
+  }
 
   return (
     <div className="app-shell">
-      <Navbar onOpenAuth={() => setIsAuthModalOpen(true)} />
+      <Navbar
+        isLoggedIn={loggedInUser !== null}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onLogout={() => setLoggedInUser(null)}
+      />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route
@@ -30,7 +40,11 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthSuccess={handleAuthSuccess}
+      />
     </div>
   )
 }
