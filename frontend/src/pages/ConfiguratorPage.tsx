@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { saveConfiguration } from '../api'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { saveConfiguration, updateConfiguration } from '../api'
 import { Button } from '../components/Button'
 import { ComponentCard } from '../components/ComponentCard'
 import { ConfigurationSummary } from '../components/ConfigurationSummary'
@@ -80,11 +80,32 @@ export function ConfiguratorPage({
   onOpenAuth,
 }: ConfiguratorPageProps) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialCategory = (searchParams.get('category') as ComponentCategory) || 'cpu'
 
   const [activeCategory, setActiveCategory] = useState<ComponentCategory>(initialCategory)
   const [isSummaryOpen, setIsSummaryOpen] = useState(true)
+  const [editingConfigurationId, setEditingConfigurationId] = useState<number | null>(null)
+  const [configurationName, setConfigurationName] = useState('Moja konfiguracija')
+
+  useEffect(() => {
+    const state = location.state as
+      | {
+          configuration?: Configuration
+          editingConfigurationId?: number
+          configName?: string
+        }
+      | undefined
+
+    if (!state?.configuration) {
+      return
+    }
+
+    setConfiguration(state.configuration)
+    setEditingConfigurationId(state.editingConfigurationId ?? null)
+    setConfigurationName(state.configName ?? 'Moja konfiguracija')
+  }, [location.state, setConfiguration])
 
   const totalPrice = useMemo(
     () => calculateTotalPrice(configuration),
@@ -172,21 +193,27 @@ export function ConfiguratorPage({
       return
     }
 
-    const payload: Record<string, string> = {
-      name: 'Moja konfiguracija',
+    const payload: Record<string, string | null> = {
+      name: configurationName.trim() || 'Moja konfiguracija',
     }
 
     for (const category of categories) {
       const component = configuration[category]
-
-      if (component) {
-        payload[`${category}_id`] = component.id
-      }
+      payload[`${category}_id`] = component ? component.id : null
     }
 
-    const loadingToastId = toast.loading('Spremanje konfiguracije...')
+    const loadingToastId = toast.loading(
+      editingConfigurationId ? 'Ažuriranje konfiguracije...' : 'Spremanje konfiguracije...',
+    )
 
     try {
+      if (editingConfigurationId) {
+        await updateConfiguration(editingConfigurationId, payload)
+        toast.success('Konfiguracija je uspješno ažurirana.', { id: loadingToastId })
+        navigate('/moje-konfiguracije')
+        return
+      }
+
       await saveConfiguration(payload)
       toast.success('Konfiguracija je uspješno spremljena.', { id: loadingToastId })
     } catch (error: any) {

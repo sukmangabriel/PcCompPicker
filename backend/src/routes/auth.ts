@@ -238,6 +238,66 @@ router.post('/configurations', authMiddleware, async (req: AuthenticatedRequest,
   }
 })
 
+router.put('/configurations/:id', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const userId = req.user?.userId
+  const configurationId = Number(req.params.id)
+
+  if (!userId) {
+    return res.status(401).json({ message: 'Niste prijavljeni.' })
+  }
+
+  if (!Number.isInteger(configurationId)) {
+    return res.status(400).json({ message: 'Neispravan ID konfiguracije.' })
+  }
+
+  const payload = req.body ?? {}
+  const assignments: string[] = []
+  const values: unknown[] = []
+
+  const name = normalizeString(payload.name)
+  if (name) {
+    assignments.push('name = $3')
+    values.push(name)
+  }
+
+  for (const key of ['cpu_id', 'gpu_id', 'ram_id', 'storage_id', 'cooling_id', 'psu_id', 'case_id', 'motherboard_id'] as const) {
+    const rawValue = payload[key]
+    const value = typeof rawValue === 'string' ? rawValue.trim() : rawValue == null ? null : String(rawValue)
+
+    if (value === undefined) {
+      continue
+    }
+
+    assignments.push(`${key} = $${values.length + 3}`)
+    values.push(value)
+  }
+
+  if (assignments.length === 0) {
+    return res.status(400).json({ message: 'Nema promjena za ažuriranje konfiguracije.' })
+  }
+
+  try {
+    const result = await client.query(
+      `
+        UPDATE konfiguracije
+        SET ${assignments.join(', ')}
+        WHERE id = $1 AND user_id = $2
+        RETURNING *
+      `,
+      [configurationId, userId, ...values],
+    )
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Konfiguracija nije pronađena.' })
+    }
+
+    return res.json({ configuration: result.rows[0] })
+  } catch (error) {
+    console.error('Greška pri ažuriranju konfiguracije:', error)
+    return res.status(500).json({ message: 'Interna greška poslužitelja.' })
+  }
+})
+
 router.delete('/configurations/:id', authMiddleware, async (req: AuthenticatedRequest, res) => {
   const userId = req.user?.userId
   const configurationId = Number(req.params.id)

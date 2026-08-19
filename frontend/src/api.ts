@@ -64,8 +64,18 @@ export async function fetchConfigurations() {
   return data.configurations
 }
 
-export async function saveConfiguration(payload: Record<string, string>) {
+export async function saveConfiguration(payload: Record<string, string | null>) {
   const { data } = await api.post<{ configuration: SavedConfiguration }>('/configurations', payload)
+  return data.configuration
+}
+
+export async function updateConfiguration(id: number, payload: Record<string, string | null>) {
+  const { data } = await api.put<{ configuration: SavedConfiguration }>(`/configurations/${id}`, payload)
+  return data.configuration
+}
+
+export async function renameConfiguration(id: number, name: string) {
+  const { data } = await api.put<{ configuration: SavedConfiguration }>(`/configurations/${id}`, { name })
   return data.configuration
 }
 
