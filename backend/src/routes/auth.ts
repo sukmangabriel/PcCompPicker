@@ -54,19 +54,31 @@ router.post('/register', async (req, res) => {
   const username = normalizeString(req.body?.username)
   const password = normalizeString(req.body?.password)
 
-  if (!username || !password) {
+  if (!username && !password) {
     return res.status(400).json({ message: 'Korisničko ime i lozinka su obavezni.' })
   }
 
-  if (username.length < 3 || password.length < 6) {
-    return res.status(400).json({ message: 'Korisničko ime mora imati barem 3 znaka, a lozinka barem 6 znakova.' })
+  if (!username) {
+    return res.status(400).json({ message: 'Registracija nije uspjela: korisničko ime je obavezno.' })
+  }
+
+  if (!password) {
+    return res.status(400).json({ message: 'Registracija nije uspjela: lozinka je obavezna.' })
+  }
+
+  if (username.length < 3) {
+    return res.status(400).json({ message: 'Registracija nije uspjela: korisničko ime mora imati najmanje 3 znaka.' })
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Registracija nije uspjela: lozinka mora imati najmanje 6 znakova.' })
   }
 
   try {
     const existing = await client.query('SELECT id FROM korisnici WHERE username = $1', [username])
 
     if (existing.rows.length > 0) {
-      return res.status(409).json({ message: 'Korisničko ime već postoji.' })
+      return res.status(409).json({ message: 'Registracija nije uspjela: korisničko ime već postoji. Odaberite drugo.' })
     }
 
     const result = await client.query(
@@ -86,7 +98,7 @@ router.post('/register', async (req, res) => {
     })
   } catch (error) {
     console.error('Greška pri registraciji:', error)
-    return res.status(500).json({ message: 'Interna greška poslužitelja.' })
+    return res.status(500).json({ message: 'Registracija nije uspjela: došlo je do pogreške na poslužitelju. Pokušajte ponovno.' })
   }
 })
 

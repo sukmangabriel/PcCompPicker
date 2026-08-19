@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { saveConfiguration } from '../api'
 import { Button } from '../components/Button'
@@ -21,6 +22,7 @@ type ConfiguratorPageProps = {
   setConfiguration: React.Dispatch<React.SetStateAction<Configuration>>
   loggedInUser: string | null
   authToken: string | null
+  onOpenAuth: () => void
 }
 
 const categoryLabels: Record<ComponentCategory, string> = {
@@ -75,6 +77,7 @@ export function ConfiguratorPage({
   setConfiguration,
   loggedInUser,
   authToken,
+  onOpenAuth,
 }: ConfiguratorPageProps) {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -82,8 +85,6 @@ export function ConfiguratorPage({
 
   const [activeCategory, setActiveCategory] = useState<ComponentCategory>(initialCategory)
   const [isSummaryOpen, setIsSummaryOpen] = useState(true)
-  const [saveMessage, setSaveMessage] = useState('')
-  const [saveError, setSaveError] = useState('')
 
   const totalPrice = useMemo(
     () => calculateTotalPrice(configuration),
@@ -111,11 +112,48 @@ export function ConfiguratorPage({
   }
 
   const removeComponent = (category: ComponentCategory) => {
-    setConfiguration((previous) => {
-      const next = { ...previous }
-      delete next[category]
-      return next
-    })
+    const selectedComponent = configuration[category]
+
+    if (!selectedComponent) {
+      return
+    }
+
+    toast.custom(
+      (t) => (
+        <div className="toast-confirmation">
+          <p>Želite li stvarno ukloniti {selectedComponent.name} iz konfiguracije?</p>
+          <div className="toast-confirmation__actions">
+            <Button
+              type="button"
+              variant="primary"
+              className="toast-confirmation__button toast-confirmation__button--primary"
+              onClick={() => {
+                toast.dismiss(t.id)
+                setConfiguration((previous) => {
+                  const next = { ...previous }
+                  delete next[category]
+                  return next
+                })
+                toast.success('Komponenta je uklonjena iz konfiguracije.')
+              }}
+            >
+              Da, ukloni
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="toast-confirmation__button toast-confirmation__button--secondary"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Odustani
+            </Button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity,
+      },
+    )
   }
 
   const handleCategoryChange = (category: ComponentCategory) => {
@@ -125,12 +163,12 @@ export function ConfiguratorPage({
 
   const handleSaveConfiguration = async () => {
     if (!loggedInUser || !authToken) {
-      setSaveError('Prijavite se kako biste spremili konfiguraciju.')
+      toast.error('Prijavite se kako biste spremili konfiguraciju.')
       return
     }
 
     if (selectedComponentCount === 0) {
-      setSaveError('Odaberite barem jednu komponentu prije spremanja.')
+      toast.error('Odaberite barem jednu komponentu prije spremanja.')
       return
     }
 
@@ -146,14 +184,14 @@ export function ConfiguratorPage({
       }
     }
 
+    const loadingToastId = toast.loading('Spremanje konfiguracije...')
+
     try {
-      setSaveError('')
-      setSaveMessage('Spremanje konfiguracije...')
       await saveConfiguration(payload)
-      setSaveMessage('Konfiguracija je uspješno spremljena.')
+      toast.success('Konfiguracija je uspješno spremljena.', { id: loadingToastId })
     } catch (error: any) {
-      setSaveMessage('')
-      setSaveError(error?.response?.data?.message ?? 'Nismo uspjeli spremiti konfiguraciju.')
+      const message = error?.response?.data?.message ?? 'Nismo uspjeli spremiti konfiguraciju.'
+      toast.error(message, { id: loadingToastId })
     }
   }
 
@@ -167,7 +205,7 @@ export function ConfiguratorPage({
           </div>
 
           <Button variant="ghost" onClick={() => navigate('/')}>
-            Nazad na uvod
+            Natrag
           </Button>
         </header>
 
@@ -219,8 +257,7 @@ export function ConfiguratorPage({
         onRemoveComponent={removeComponent}
         onSaveConfiguration={handleSaveConfiguration}
         loggedInUser={loggedInUser}
-        saveMessage={saveMessage}
-        saveError={saveError}
+        onOpenAuth={onOpenAuth}
       />
     </main>
   )

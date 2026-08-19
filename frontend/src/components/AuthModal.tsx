@@ -9,11 +9,11 @@ type AuthModalProps = {
   isOpen: boolean
   onClose: () => void
   onAuthSuccess: (payload: AuthResponse) => void
+  onError?: (message: string) => void
 }
 
-export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, onAuthSuccess, onError }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>('login')
-  const [errorMessage, setErrorMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const title = useMemo(
@@ -35,26 +35,28 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
     const confirmPassword = String(formData.get('confirmPassword') ?? '')
 
     if (!username || !password) {
-      setErrorMessage('Korisničko ime i lozinka su obavezni.')
+      const message = mode === 'register'
+        ? 'Registracija nije uspjela: korisničko ime i lozinka su obavezni.'
+        : 'Prijava nije uspjela: korisničko ime i lozinka su obavezni.'
+      onError?.(message)
       return
     }
 
     if (mode === 'register') {
       if (password !== confirmPassword) {
-        setErrorMessage('Lozinke se ne podudaraju.')
+        const message = 'Registracija nije uspjela: lozinke se ne podudaraju.'
+        onError?.(message)
         return
       }
 
       if (password.length < 6) {
-        setErrorMessage('Lozinka mora imati najmanje 6 znakova.')
+        const message = 'Registracija nije uspjela: lozinka mora imati najmanje 6 znakova.'
+        onError?.(message)
         return
       }
     }
 
     setIsSubmitting(true)
-    setErrorMessage('')
-
-    console.log('Auth submit start:', { mode, username, passwordLength: password.length })
 
     try {
       const response =
@@ -62,18 +64,15 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
           ? await loginUser(username, password)
           : await registerUser(username, password)
 
-      console.log('Auth response received:', response)
-
       form.reset()
-      setErrorMessage('')
-      console.log('Uspješna prijava:', response)
       onAuthSuccess(response)
       onClose()
     } catch (error: any) {
-      console.error('Auth submit error:', error)
-      setErrorMessage(
-        error?.response?.data?.message ?? 'Došlo je do pogreške. Pokušajte ponovno.',
-      )
+      const rawMessage = error?.response?.data?.message ?? 'Došlo je do pogreške. Pokušajte ponovno.'
+      const message = mode === 'register'
+        ? `Registracija nije uspjela: ${rawMessage.replace(/^Registracija nije uspjela:\s*/i, '')}`
+        : `Prijava nije uspjela: ${rawMessage.replace(/^Prijava nije uspjela:\s*/i, '')}`
+      onError?.(message)
     } finally {
       setIsSubmitting(false)
     }
@@ -112,7 +111,6 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
             className={mode === 'login' ? 'button--active auth-modal__tab' : 'auth-modal__tab'}
             onClick={() => {
               setMode('login')
-              setErrorMessage('')
             }}
             role="tab"
             aria-selected={mode === 'login'}
@@ -125,7 +123,6 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
             className={mode === 'register' ? 'button--active auth-modal__tab' : 'auth-modal__tab'}
             onClick={() => {
               setMode('register')
-              setErrorMessage('')
             }}
             role="tab"
             aria-selected={mode === 'register'}
@@ -160,8 +157,6 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
               autoComplete="new-password"
             />
           )}
-
-          {errorMessage && <p className="form-message form-message--error">{errorMessage}</p>}
 
           <div className="auth-modal__actions">
             <Button type="submit" variant="primary" disabled={isSubmitting}>

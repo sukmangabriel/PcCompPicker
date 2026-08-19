@@ -103,7 +103,7 @@ export function LandingPage() {
     <main className="landing-page">
       <section className="hero-section hero-section--centered">
         <div className="hero-copy hero-copy--centered">
-          <p className="eyebrow">Projektni konfigurator</p>
+          <p className="eyebrow">Računalni konfigurator</p>
           <h1>Izgradi savršeno računalo bez problema s kompatibilnošću.</h1>
           <p className="hero-text">
             Odaberi procesor, grafičku karticu, memoriju, kućište i napajanje.
