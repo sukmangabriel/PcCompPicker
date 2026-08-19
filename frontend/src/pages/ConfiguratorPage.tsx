@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { saveConfiguration } from '../api'
 import { Button } from '../components/Button'
 import { ComponentCard } from '../components/ComponentCard'
 import { ConfigurationSummary } from '../components/ConfigurationSummary'
@@ -18,6 +19,8 @@ import { checkCompatibility } from '../utils/compatibility'
 type ConfiguratorPageProps = {
   configuration: Configuration
   setConfiguration: React.Dispatch<React.SetStateAction<Configuration>>
+  loggedInUser: string | null
+  authToken: string | null
 }
 
 const categoryLabels: Record<ComponentCategory, string> = {
@@ -70,6 +73,8 @@ function getComponentSummary(component: Component): string {
 export function ConfiguratorPage({
   configuration,
   setConfiguration,
+  loggedInUser,
+  authToken,
 }: ConfiguratorPageProps) {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -77,6 +82,8 @@ export function ConfiguratorPage({
 
   const [activeCategory, setActiveCategory] = useState<ComponentCategory>(initialCategory)
   const [isSummaryOpen, setIsSummaryOpen] = useState(true)
+  const [saveMessage, setSaveMessage] = useState('')
+  const [saveError, setSaveError] = useState('')
 
   const totalPrice = useMemo(
     () => calculateTotalPrice(configuration),
@@ -114,6 +121,40 @@ export function ConfiguratorPage({
   const handleCategoryChange = (category: ComponentCategory) => {
     setActiveCategory(category)
     setSearchParams({ category })
+  }
+
+  const handleSaveConfiguration = async () => {
+    if (!loggedInUser || !authToken) {
+      setSaveError('Prijavite se kako biste spremili konfiguraciju.')
+      return
+    }
+
+    if (selectedComponentCount === 0) {
+      setSaveError('Odaberite barem jednu komponentu prije spremanja.')
+      return
+    }
+
+    const payload: Record<string, string> = {
+      name: 'Moja konfiguracija',
+    }
+
+    for (const category of categories) {
+      const component = configuration[category]
+
+      if (component) {
+        payload[`${category}_id`] = component.id
+      }
+    }
+
+    try {
+      setSaveError('')
+      setSaveMessage('Spremanje konfiguracije...')
+      await saveConfiguration(payload)
+      setSaveMessage('Konfiguracija je uspješno spremljena.')
+    } catch (error: any) {
+      setSaveMessage('')
+      setSaveError(error?.response?.data?.message ?? 'Nismo uspjeli spremiti konfiguraciju.')
+    }
   }
 
   return (
@@ -176,6 +217,10 @@ export function ConfiguratorPage({
         isOpen={isSummaryOpen}
         onToggle={() => setIsSummaryOpen((previous) => !previous)}
         onRemoveComponent={removeComponent}
+        onSaveConfiguration={handleSaveConfiguration}
+        loggedInUser={loggedInUser}
+        saveMessage={saveMessage}
+        saveError={saveError}
       />
     </main>
   )

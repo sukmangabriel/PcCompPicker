@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { initialUsers } from '../data/users'
+import { loginUser, registerUser, type AuthResponse } from '../api'
 import { Button } from './Button'
 import { Input } from './Input'
 
@@ -8,12 +8,13 @@ type AuthMode = 'login' | 'register'
 type AuthModalProps = {
   isOpen: boolean
   onClose: () => void
-  onAuthSuccess: (username: string) => void
+  onAuthSuccess: (payload: AuthResponse) => void
 }
 
 export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>('login')
-  const [users, setUsers] = useState(initialUsers)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const title = useMemo(
     () => (mode === 'login' ? 'Prijava' : 'Registracija'),
@@ -24,51 +25,58 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
     return null
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const formData = new FormData(event.currentTarget)
+    const form = event.currentTarget
+    const formData = new FormData(form)
     const username = String(formData.get('username') ?? '').trim()
     const password = String(formData.get('password') ?? '')
     const confirmPassword = String(formData.get('confirmPassword') ?? '')
 
     if (!username || !password) {
+      setErrorMessage('Korisničko ime i lozinka su obavezni.')
       return
     }
 
     if (mode === 'register') {
       if (password !== confirmPassword) {
+        setErrorMessage('Lozinke se ne podudaraju.')
         return
       }
 
-      const exists = users.some((user) => user.username === username)
-
-      if (exists) {
+      if (password.length < 6) {
+        setErrorMessage('Lozinka mora imati najmanje 6 znakova.')
         return
       }
-
-      setUsers((currentUsers) => [
-        ...currentUsers,
-        {
-          id: `user-${Date.now()}`,
-          username,
-          password,
-        },
-      ])
     }
 
-    if (mode === 'login') {
-      const foundUser = users.find(
-        (user) => user.username === username && user.password === password,
+    setIsSubmitting(true)
+    setErrorMessage('')
+
+    console.log('Auth submit start:', { mode, username, passwordLength: password.length })
+
+    try {
+      const response =
+        mode === 'login'
+          ? await loginUser(username, password)
+          : await registerUser(username, password)
+
+      console.log('Auth response received:', response)
+
+      form.reset()
+      setErrorMessage('')
+      console.log('Uspješna prijava:', response)
+      onAuthSuccess(response)
+      onClose()
+    } catch (error: any) {
+      console.error('Auth submit error:', error)
+      setErrorMessage(
+        error?.response?.data?.message ?? 'Došlo je do pogreške. Pokušajte ponovno.',
       )
-
-      if (!foundUser) {
-        return
-      }
+    } finally {
+      setIsSubmitting(false)
     }
-
-    event.currentTarget.reset()
-    onAuthSuccess(username)
   }
 
   return (
@@ -102,7 +110,10 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
             type="button"
             variant="tab"
             className={mode === 'login' ? 'button--active auth-modal__tab' : 'auth-modal__tab'}
-            onClick={() => setMode('login')}
+            onClick={() => {
+              setMode('login')
+              setErrorMessage('')
+            }}
             role="tab"
             aria-selected={mode === 'login'}
           >
@@ -112,7 +123,10 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
             type="button"
             variant="tab"
             className={mode === 'register' ? 'button--active auth-modal__tab' : 'auth-modal__tab'}
-            onClick={() => setMode('register')}
+            onClick={() => {
+              setMode('register')
+              setErrorMessage('')
+            }}
             role="tab"
             aria-selected={mode === 'register'}
           >
@@ -147,9 +161,17 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
             />
           )}
 
+          {errorMessage && <p className="form-message form-message--error">{errorMessage}</p>}
+
           <div className="auth-modal__actions">
-            <Button type="submit" variant="primary">
-              {mode === 'login' ? 'Prijavi se' : 'Registriraj se'}
+            <Button type="submit" variant="primary" disabled={isSubmitting}>
+              {isSubmitting
+                ? mode === 'login'
+                  ? 'Prijava...'
+                  : 'Registracija...'
+                : mode === 'login'
+                  ? 'Prijavi se'
+                  : 'Registriraj se'}
             </Button>
           </div>
         </form>

@@ -16,6 +16,10 @@ type ConfigurationSummaryProps = {
   isOpen: boolean
   onToggle: () => void
   onRemoveComponent: (category: ComponentCategory) => void
+  onSaveConfiguration: () => void
+  loggedInUser: string | null
+  saveMessage: string
+  saveError: string
 }
 
 export function ConfigurationSummary({
@@ -29,6 +33,10 @@ export function ConfigurationSummary({
   isOpen,
   onToggle,
   onRemoveComponent,
+  onSaveConfiguration,
+  loggedInUser,
+  saveMessage,
+  saveError,
 }: ConfigurationSummaryProps) {
   const statusLabel = compatibility.compatible
     ? 'Kompatibilno'
@@ -112,6 +120,19 @@ export function ConfigurationSummary({
                 )
               })}
             </div>
+
+            <div className="summary-actions">
+              <Button
+                variant="primary"
+                onClick={onSaveConfiguration}
+                disabled={!loggedInUser || selectedComponentCount === 0}
+              >
+                {loggedInUser ? 'Spremi konfiguraciju' : 'Prijavite se za spremanje'}
+              </Button>
+            </div>
+
+            {saveMessage && <p className="form-message form-message--success">{saveMessage}</p>}
+            {saveError && <p className="form-message form-message--error">{saveError}</p>}
 
             <div className="issue-list">
               <h3>Prijavljene poruke</h3>
