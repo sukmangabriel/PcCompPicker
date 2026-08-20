@@ -45,43 +45,45 @@ export function ConfiguratorFilterPanel({
         </button>
       </div>
 
-      <div className="filter-panel__grid">
-        <RangeFilterField
-          label="Cijena (€)"
-          min={priceRange.min}
-          max={priceRange.max}
-          minLimit={0}
-          maxLimit={5000}
-          showSliders
-          onMinChange={(value) =>
-            updateRangeFilter('priceRange', 'min', value, 0, 5000)
-          }
-          onMaxChange={(value) =>
-            updateRangeFilter('priceRange', 'max', value, 0, 5000)
-          }
-        />
+      <div className="filter-panel__content">
+        <div className="filter-panel__grid">
+          <RangeFilterField
+            label="Cijena (€)"
+            min={priceRange.min}
+            max={priceRange.max}
+            minLimit={0}
+            maxLimit={5000}
+            showSliders
+            onMinChange={(value) =>
+              updateRangeFilter('priceRange', 'min', value, 0, 5000)
+            }
+            onMaxChange={(value) =>
+              updateRangeFilter('priceRange', 'max', value, 0, 5000)
+            }
+          />
 
-        <RangeFilterField
-          label="TDP (W)"
-          min={tdpRange.min}
-          max={tdpRange.max}
-          minLimit={0}
-          maxLimit={1000}
-          showSliders
-          onMinChange={(value) =>
-            updateRangeFilter('tdpRange', 'min', value, 0, 1000)
-          }
-          onMaxChange={(value) =>
-            updateRangeFilter('tdpRange', 'max', value, 0, 1000)
-          }
+          <RangeFilterField
+            label="TDP (W)"
+            min={tdpRange.min}
+            max={tdpRange.max}
+            minLimit={0}
+            maxLimit={1000}
+            showSliders
+            onMinChange={(value) =>
+              updateRangeFilter('tdpRange', 'min', value, 0, 1000)
+            }
+            onMaxChange={(value) =>
+              updateRangeFilter('tdpRange', 'max', value, 0, 1000)
+            }
+          />
+        </div>
+
+        <CategoryFilterFields
+          activeCategory={activeCategory}
+          activeFilters={activeFilters}
+          updateCategoryFilter={updateCategoryFilter}
         />
       </div>
-
-      <CategoryFilterFields
-        activeCategory={activeCategory}
-        activeFilters={activeFilters}
-        updateCategoryFilter={updateCategoryFilter}
-      />
     </div>
   )
 }

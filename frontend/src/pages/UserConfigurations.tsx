@@ -39,10 +39,8 @@ export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
         setLoading(true)
         const savedConfigurations = await fetchConfigurations()
         setConfigurations(savedConfigurations)
-      } catch (error: unknown) {
-        toast.error(
-          getApiErrorMessage(error, 'Nismo uspjeli dohvatiti konfiguracije.'),
-        )
+      } catch {
+        setConfigurations([])
       } finally {
         setLoading(false)
       }

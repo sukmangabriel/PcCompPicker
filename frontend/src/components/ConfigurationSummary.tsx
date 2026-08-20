@@ -65,100 +65,97 @@ export function ConfigurationSummary({
           </Button>
         </div>
 
-        <div className="summary-stats">
-          <div className="summary-stat">
-            <span>Ukupna cijena</span>
-            <strong>{totalPrice.toFixed(2)} €</strong>
+        <div className="summary-scroller">
+          <div className="summary-stats summary-stats--compact">
+            <div className="summary-stat summary-stat--centered">
+              <span>Ukupna cijena</span>
+              <strong>{totalPrice.toFixed(2)} €</strong>
+            </div>
+            <div className="summary-stat summary-stat--centered">
+              <span>Procijenjeni TDP</span>
+              <strong>{estimatedTdp} W</strong>
+            </div>
           </div>
-          <div className="summary-stat">
-            <span>Procijenjeni TDP</span>
-            <strong>{estimatedTdp} W</strong>
-          </div>
-          <div className="summary-stat compact-stat">
-            <span>Odabrane komponente</span>
-            <strong>{selectedComponentCount}</strong>
-          </div>
+
           <div
             className={
-              compatibility.compatible
-                ? 'status-pill ok'
-                : 'status-pill warning'
+              compatibility.compatible ? 'status-pill ok' : 'status-pill warning'
             }
           >
             {statusLabel}
           </div>
-        </div>
 
-        {isOpen && (
-          <>
-            <div className="selection-list">
-              <h3>Izgrađena konfiguracija</h3>
-              {categories.map((category) => {
-                const component = configuration[category]
+          {isOpen && (
+            <>
+              <div className="selection-list">
+                <h3>Izgrađena konfiguracija</h3>
+                {categories.map((category) => {
+                  const component = configuration[category]
 
-                return (
-                  <div key={category} className="selection-item">
-                    <span>{categoryLabels[category]}</span>
-                    <div className="selection-item__content">
-                      <strong>
-                        {component ? component.name : 'Nije odabrano'}
-                      </strong>
-                      {component && (
-                        <Button
-                          variant="primary"
-                          className="selection-item__remove"
-                          aria-label={`Ukloni ${component.name}`}
-                          onClick={() => onRemoveComponent(category)}
-                        >
-                          ×
-                        </Button>
-                      )}
+                  return (
+                    <div key={category} className="selection-item">
+                      <span>{categoryLabels[category]}</span>
+                      <div className="selection-item__content">
+                        <strong>
+                          {component ? component.name : 'Nije odabrano'}
+                        </strong>
+                        {component && (
+                          <Button
+                            variant="primary"
+                            className="selection-item__remove"
+                            aria-label={`Ukloni ${component.name}`}
+                            onClick={() => onRemoveComponent(category)}
+                          >
+                            ×
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
 
-            <div className="summary-actions">
-              <Button
-                variant="primary"
-                onClick={() => {
-                  if (!loggedInUser) {
-                    onOpenAuth()
-                    return
-                  }
+              <div className="summary-actions">
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    if (!loggedInUser) {
+                      onOpenAuth()
+                      return
+                    }
 
-                  onSaveConfiguration()
-                }}
-                disabled={selectedComponentCount === 0}
-              >
-                {loggedInUser
-                  ? 'Spremi konfiguraciju'
-                  : 'Prijavite se za spremanje'}
-              </Button>
-            </div>
+                    onSaveConfiguration()
+                  }}
+                  disabled={selectedComponentCount === 0}
+                >
+                  {loggedInUser
+                    ? 'Spremi konfiguraciju'
+                    : 'Prijavite se za spremanje'}
+                </Button>
+              </div>
 
-            <div className="issue-list">
-              <h3>Prijavljene poruke</h3>
-              {compatibility.issues.length > 0 ? (
-                <ul>
-                  {compatibility.issues.map((issue, index) => (
-                    <li
-                      key={`${issue.severity}-${index}`}
-                      className={issue.severity}
-                    >
-                      {issue.message}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="no-issues">
-                  Nema prijavljenih problema kompatibilnosti.
-                </p>
-              )}
-            </div>
-          </>
-        )}
+              <div className="issue-list">
+                <h3>Prijavljene poruke</h3>
+                {compatibility.issues.length > 0 ? (
+                  <ul>
+                    {compatibility.issues.map((issue, index) => (
+                      <li
+                        key={`${issue.severity}-${index}`}
+                        className={issue.severity}
+                      >
+                        {issue.message}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="no-issues">
+                    Nema prijavljenih problema kompatibilnosti.
+                  </p>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </aside>
   )

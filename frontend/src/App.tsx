@@ -47,7 +47,7 @@ function App() {
     setAuthToken(token)
     setIsAuthModalOpen(false)
     toast.success(`Uspješno ste prijavljeni kao ${user.username}.`, {
-      duration: 3200,
+      duration: 2000,
     })
   }
 
@@ -74,7 +74,7 @@ function App() {
                   setAuthToken(null)
                   setIsAuthModalOpen(false)
                   toast.success('Uspješno ste odjavljeni.', {
-                    duration: 3200,
+                    duration: 2000,
                   })
                 }
               }}
@@ -130,7 +130,7 @@ function App() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onAuthSuccess={handleAuthSuccess}
-        onError={(message) => toast.error(message, { duration: 3200 })}
+        onError={(message) => toast.error(message, { duration: 2000 })}
       />
 
       <Toaster
@@ -143,7 +143,7 @@ function App() {
           bottom: 'auto',
         }}
         toastOptions={{
-          duration: 3200,
+          duration: 2000,
           style: {
             maxWidth: '420px',
             width: 'fit-content',

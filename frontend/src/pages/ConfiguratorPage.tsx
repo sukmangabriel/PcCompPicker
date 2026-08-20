@@ -98,11 +98,15 @@ export function ConfiguratorPage({
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const initialCategory =
-    (searchParams.get('category') as ComponentCategory) || 'cpu'
 
-  const [activeCategory, setActiveCategory] =
-    useState<ComponentCategory>(initialCategory)
+  const isValidCategory = (value: string | null): value is ComponentCategory => {
+    return Boolean(value && categories.includes(value as ComponentCategory))
+  }
+
+  const [activeCategory, setActiveCategory] = useState<ComponentCategory>(() => {
+    const categoryFromUrl = searchParams.get('category')
+    return isValidCategory(categoryFromUrl) ? categoryFromUrl : 'cpu'
+  })
   const [isSummaryOpen, setIsSummaryOpen] = useState(true)
   const [editingConfigurationId, setEditingConfigurationId] = useState<
     number | null
@@ -117,6 +121,14 @@ export function ConfiguratorPage({
     categoryFilters[activeCategory] ?? defaultCategoryFilters[activeCategory]
   const priceRange = activeFilters.priceRange as RangeState
   const tdpRange = activeFilters.tdpRange as RangeState
+
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category')
+
+    if (isValidCategory(categoryFromUrl) && categoryFromUrl !== activeCategory) {
+      setActiveCategory(categoryFromUrl)
+    }
+  }, [activeCategory, searchParams])
 
   useEffect(() => {
     const state = location.state as
@@ -221,7 +233,7 @@ export function ConfiguratorPage({
 
   const handleCategoryChange = (category: ComponentCategory) => {
     setActiveCategory(category)
-    setSearchParams({ category })
+    setSearchParams({ category }, { replace: true })
   }
 
   const updateRangeFilter = (
@@ -366,6 +378,7 @@ export function ConfiguratorPage({
         <div className="catalog-content">
           <div className="catalog-grid-wrapper">
             <div
+              key={activeCategory}
               id={`panel-${activeCategory}`}
               className="catalog-grid"
               role="tabpanel"
