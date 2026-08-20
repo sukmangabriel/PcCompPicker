@@ -1,6 +1,6 @@
 import axios, { AxiosHeaders } from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3002/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL
 
 export type AuthUser = {
   id: number
@@ -46,12 +46,18 @@ api.interceptors.request.use((config) => {
 })
 
 export async function registerUser(username: string, password: string) {
-  const { data } = await api.post<AuthResponse>('/register', { username, password })
+  const { data } = await api.post<AuthResponse>('/register', {
+    username,
+    password,
+  })
   return data
 }
 
 export async function loginUser(username: string, password: string) {
-  const { data } = await api.post<AuthResponse>('/login', { username, password })
+  const { data } = await api.post<AuthResponse>('/login', {
+    username,
+    password,
+  })
   return data
 }
 
@@ -60,26 +66,44 @@ export async function logoutUser() {
 }
 
 export async function fetchConfigurations() {
-  const { data } = await api.get<{ configurations: SavedConfiguration[] }>('/configurations')
+  const { data } = await api.get<{ configurations: SavedConfiguration[] }>(
+    '/configurations',
+  )
   return data.configurations
 }
 
-export async function saveConfiguration(payload: Record<string, string | null>) {
-  const { data } = await api.post<{ configuration: SavedConfiguration }>('/configurations', payload)
+export async function saveConfiguration(
+  payload: Record<string, string | null>,
+) {
+  const { data } = await api.post<{ configuration: SavedConfiguration }>(
+    '/configurations',
+    payload,
+  )
   return data.configuration
 }
 
-export async function updateConfiguration(id: number, payload: Record<string, string | null>) {
-  const { data } = await api.put<{ configuration: SavedConfiguration }>(`/configurations/${id}`, payload)
+export async function updateConfiguration(
+  id: number,
+  payload: Record<string, string | null>,
+) {
+  const { data } = await api.put<{ configuration: SavedConfiguration }>(
+    `/configurations/${id}`,
+    payload,
+  )
   return data.configuration
 }
 
 export async function renameConfiguration(id: number, name: string) {
-  const { data } = await api.put<{ configuration: SavedConfiguration }>(`/configurations/${id}`, { name })
+  const { data } = await api.put<{ configuration: SavedConfiguration }>(
+    `/configurations/${id}`,
+    { name },
+  )
   return data.configuration
 }
 
 export async function deleteConfiguration(id: number) {
-  const { data } = await api.delete<{ message: string }>(`/configurations/${id}`)
+  const { data } = await api.delete<{ message: string }>(
+    `/configurations/${id}`,
+  )
   return data
 }

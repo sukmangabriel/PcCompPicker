@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { loginUser, registerUser, type AuthResponse } from '../api'
+import { getApiErrorMessage } from '../utils/error-message'
 import { Button } from './Button'
 import { Input } from './Input'
 
@@ -12,7 +13,12 @@ type AuthModalProps = {
   onError?: (message: string) => void
 }
 
-export function AuthModal({ isOpen, onClose, onAuthSuccess, onError }: AuthModalProps) {
+export function AuthModal({
+  isOpen,
+  onClose,
+  onAuthSuccess,
+  onError,
+}: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>('login')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -35,9 +41,10 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, onError }: AuthModal
     const confirmPassword = String(formData.get('confirmPassword') ?? '')
 
     if (!username || !password) {
-      const message = mode === 'register'
-        ? 'Registracija nije uspjela: korisničko ime i lozinka su obavezni.'
-        : 'Prijava nije uspjela: korisničko ime i lozinka su obavezni.'
+      const message =
+        mode === 'register'
+          ? 'Registracija nije uspjela: korisničko ime i lozinka su obavezni.'
+          : 'Prijava nije uspjela: korisničko ime i lozinka su obavezni.'
       onError?.(message)
       return
     }
@@ -50,7 +57,8 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, onError }: AuthModal
       }
 
       if (password.length < 6) {
-        const message = 'Registracija nije uspjela: lozinka mora imati najmanje 6 znakova.'
+        const message =
+          'Registracija nije uspjela: lozinka mora imati najmanje 6 znakova.'
         onError?.(message)
         return
       }
@@ -67,11 +75,15 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, onError }: AuthModal
       form.reset()
       onAuthSuccess(response)
       onClose()
-    } catch (error: any) {
-      const rawMessage = error?.response?.data?.message ?? 'Došlo je do pogreške. Pokušajte ponovno.'
-      const message = mode === 'register'
-        ? `Registracija nije uspjela: ${rawMessage.replace(/^Registracija nije uspjela:\s*/i, '')}`
-        : `Prijava nije uspjela: ${rawMessage.replace(/^Prijava nije uspjela:\s*/i, '')}`
+    } catch (error: unknown) {
+      const rawMessage = getApiErrorMessage(
+        error,
+        'Došlo je do pogreške. Pokušajte ponovno.',
+      )
+      const message =
+        mode === 'register'
+          ? `Registracija nije uspjela: ${rawMessage.replace(/^Registracija nije uspjela:\s*/i, '')}`
+          : `Prijava nije uspjela: ${rawMessage.replace(/^Prijava nije uspjela:\s*/i, '')}`
       onError?.(message)
     } finally {
       setIsSubmitting(false)
@@ -104,11 +116,19 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, onError }: AuthModal
           </Button>
         </div>
 
-        <div className="auth-modal__tabs" role="tablist" aria-label="Odabir načina prijave">
+        <div
+          className="auth-modal__tabs"
+          role="tablist"
+          aria-label="Odabir načina prijave"
+        >
           <Button
             type="button"
             variant="tab"
-            className={mode === 'login' ? 'button--active auth-modal__tab' : 'auth-modal__tab'}
+            className={
+              mode === 'login'
+                ? 'button--active auth-modal__tab'
+                : 'auth-modal__tab'
+            }
             onClick={() => {
               setMode('login')
             }}
@@ -120,7 +140,11 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, onError }: AuthModal
           <Button
             type="button"
             variant="tab"
-            className={mode === 'register' ? 'button--active auth-modal__tab' : 'auth-modal__tab'}
+            className={
+              mode === 'register'
+                ? 'button--active auth-modal__tab'
+                : 'auth-modal__tab'
+            }
             onClick={() => {
               setMode('register')
             }}
@@ -145,7 +169,9 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, onError }: AuthModal
             type="password"
             name="password"
             placeholder="Unesite lozinku"
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            autoComplete={
+              mode === 'login' ? 'current-password' : 'new-password'
+            }
           />
 
           {mode === 'register' && (

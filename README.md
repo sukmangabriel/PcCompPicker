@@ -1,73 +1,103 @@
-# React + TypeScript + Vite
+# PcCompPicker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interaktivna web aplikacija za konfiguriranje racunala i provjeru kompatibilnosti komponenti.
 
-Currently, two official plugins are available:
+## Tehnologije
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Frontend: React 19, TypeScript 6, Vite 8, React Router, Axios, React Hot Toast
+- Backend: Node.js, Express, TypeScript, PostgreSQL, JWT
 
-## React Compiler
+## Preduvjeti
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js: preporuka 22 LTS (minimalno 20+)
+- npm: 10+
+- PostgreSQL: 14+ (ili noviji)
 
-## Expanding the ESLint configuration
+## Struktura projekta
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- frontend: korisnicko sucelje i konfigurator
+- backend: API za autentifikaciju i spremanje konfiguracija
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Instalacija
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Iz root-a projekta:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm --prefix frontend install
+npm --prefix backend install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Varijable okruzenja
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Backend
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+PORT=3001
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB_NAME
+JWT_SECRET=promijeni-ovaj-kljuc
+
+### Frontend
+
+VITE_API_URL=http://localhost:3002/api
+
+## Pokretanje aplikacije
+
+### Pokretanje frontend + backend zajedno (iz root-a)
+
+```bash
+npm run dev
+```
+
+### Pokretanje odvojeno
+
+Backend:
+
+```bash
+npm --prefix backend run dev
+```
+
+Frontend:
+
+```bash
+npm --prefix frontend run dev
+```
+
+## Validacija i kvaliteta koda
+
+Formatiranje svih datoteka u root-u:
+
+```bash
+npx prettier --write .
+```
+
+Frontend lint:
+
+```bash
+npm --prefix frontend run lint
+```
+
+Frontend TypeScript validacija:
+
+```bash
+npm --prefix frontend run typecheck
+```
+
+Backend TypeScript validacija:
+
+```bash
+npm --prefix backend run build
+```
+
+## Produkcijski build
+
+Frontend:
+
+```bash
+npm --prefix frontend run build
+```
+
+Backend:
+
+```bash
+npm --prefix backend run build
 ```

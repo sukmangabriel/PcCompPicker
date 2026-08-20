@@ -10,12 +10,20 @@ type SelectFilterFieldProps = {
   onChange: (value: string) => void
 }
 
-export function SelectFilterField({ label, value, options, onChange }: SelectFilterFieldProps) {
+export function SelectFilterField({
+  label,
+  value,
+  options,
+  onChange,
+}: SelectFilterFieldProps) {
   return (
     <div className="filter-group filter-group--compact">
       <label className="filter-label">
         {label}
-        <select value={value} onChange={(event) => onChange(event.target.value)}>
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        >
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}

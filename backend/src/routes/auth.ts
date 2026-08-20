@@ -13,9 +13,15 @@ type AuthenticatedRequest = Request & {
 }
 
 const signToken = (user: { id: number; username: string }) =>
-  jwt.sign({ userId: user.id, username: user.username }, jwtSecret, { expiresIn: '7d' })
+  jwt.sign({ userId: user.id, username: user.username }, jwtSecret, {
+    expiresIn: '7d',
+  })
 
-const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+const authMiddleware = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   const authHeader = req.headers.authorization
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -25,7 +31,10 @@ const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunc
   const token = authHeader.replace('Bearer ', '')
 
   try {
-    const decoded = jwt.verify(token, jwtSecret) as { userId: number; username: string }
+    const decoded = jwt.verify(token, jwtSecret) as {
+      userId: number
+      username: string
+    }
 
     req.user = {
       userId: decoded.userId,
@@ -34,7 +43,9 @@ const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunc
 
     return next()
   } catch {
-    return res.status(401).json({ message: 'Token je nevažeći ili je istekao.' })
+    return res
+      .status(401)
+      .json({ message: 'Token je nevažeći ili je istekao.' })
   }
 }
 
@@ -55,30 +66,48 @@ router.post('/register', async (req, res) => {
   const password = normalizeString(req.body?.password)
 
   if (!username && !password) {
-    return res.status(400).json({ message: 'Korisničko ime i lozinka su obavezni.' })
+    return res
+      .status(400)
+      .json({ message: 'Korisničko ime i lozinka su obavezni.' })
   }
 
   if (!username) {
-    return res.status(400).json({ message: 'Registracija nije uspjela: korisničko ime je obavezno.' })
+    return res.status(400).json({
+      message: 'Registracija nije uspjela: korisničko ime je obavezno.',
+    })
   }
 
   if (!password) {
-    return res.status(400).json({ message: 'Registracija nije uspjela: lozinka je obavezna.' })
+    return res
+      .status(400)
+      .json({ message: 'Registracija nije uspjela: lozinka je obavezna.' })
   }
 
   if (username.length < 3) {
-    return res.status(400).json({ message: 'Registracija nije uspjela: korisničko ime mora imati najmanje 3 znaka.' })
+    return res.status(400).json({
+      message:
+        'Registracija nije uspjela: korisničko ime mora imati najmanje 3 znaka.',
+    })
   }
 
   if (password.length < 6) {
-    return res.status(400).json({ message: 'Registracija nije uspjela: lozinka mora imati najmanje 6 znakova.' })
+    return res.status(400).json({
+      message:
+        'Registracija nije uspjela: lozinka mora imati najmanje 6 znakova.',
+    })
   }
 
   try {
-    const existing = await client.query('SELECT id FROM korisnici WHERE username = $1', [username])
+    const existing = await client.query(
+      'SELECT id FROM korisnici WHERE username = $1',
+      [username],
+    )
 
     if (existing.rows.length > 0) {
-      return res.status(409).json({ message: 'Registracija nije uspjela: korisničko ime već postoji. Odaberite drugo.' })
+      return res.status(409).json({
+        message:
+          'Registracija nije uspjela: korisničko ime već postoji. Odaberite drugo.',
+      })
     }
 
     const result = await client.query(
@@ -96,9 +125,11 @@ router.post('/register', async (req, res) => {
         username: user.username,
       },
     })
-  } catch (error) {
-    console.error('Greška pri registraciji:', error)
-    return res.status(500).json({ message: 'Registracija nije uspjela: došlo je do pogreške na poslužitelju. Pokušajte ponovno.' })
+  } catch {
+    return res.status(500).json({
+      message:
+        'Registracija nije uspjela: došlo je do pogreške na poslužitelju. Pokušajte ponovno.',
+    })
   }
 })
 
@@ -107,7 +138,9 @@ router.post('/login', async (req, res) => {
   const password = normalizeString(req.body?.password)
 
   if (!username || !password) {
-    return res.status(400).json({ message: 'Korisničko ime i lozinka su obavezni.' })
+    return res
+      .status(400)
+      .json({ message: 'Korisničko ime i lozinka su obavezni.' })
   }
 
   try {
@@ -135,8 +168,7 @@ router.post('/login', async (req, res) => {
         username: user.username,
       },
     })
-  } catch (error) {
-    console.error('Greška pri prijavi:', error)
+  } catch {
     return res.status(500).json({ message: 'Interna greška poslužitelja.' })
   }
 })
@@ -153,7 +185,10 @@ router.get('/me', authMiddleware, async (req: AuthenticatedRequest, res) => {
   }
 
   try {
-    const result = await client.query('SELECT id, username FROM korisnici WHERE id = $1', [userId])
+    const result = await client.query(
+      'SELECT id, username FROM korisnici WHERE id = $1',
+      [userId],
+    )
 
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Korisnik nije pronađen.' })
@@ -162,57 +197,64 @@ router.get('/me', authMiddleware, async (req: AuthenticatedRequest, res) => {
     const user = result.rows[0]
 
     return res.json({ user: { id: user.id, username: user.username } })
-  } catch (error) {
-    console.error('Greška pri dohvaćanju podataka korisnika:', error)
+  } catch {
     return res.status(500).json({ message: 'Interna greška poslužitelja.' })
   }
 })
 
-router.get('/configurations', authMiddleware, async (req: AuthenticatedRequest, res) => {
-  const userId = req.user?.userId
+router.get(
+  '/configurations',
+  authMiddleware,
+  async (req: AuthenticatedRequest, res) => {
+    const userId = req.user?.userId
 
-  if (!userId) {
-    return res.status(401).json({ message: 'Niste prijavljeni.' })
-  }
+    if (!userId) {
+      return res.status(401).json({ message: 'Niste prijavljeni.' })
+    }
 
-  try {
-    const result = await client.query(
-      `
+    try {
+      const result = await client.query(
+        `
         SELECT *
         FROM konfiguracije
         WHERE user_id = $1
         ORDER BY created_at DESC
       `,
-      [userId],
+        [userId],
+      )
+
+      return res.json({ configurations: result.rows })
+    } catch {
+      return res.status(500).json({ message: 'Interna greška poslužitelja.' })
+    }
+  },
+)
+
+router.post(
+  '/configurations',
+  authMiddleware,
+  async (req: AuthenticatedRequest, res) => {
+    const userId = req.user?.userId
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Niste prijavljeni.' })
+    }
+
+    const name = normalizeString(req.body?.name) || 'Moja konfiguracija'
+    const cpuId = normalizeString(req.body?.cpu_id ?? req.body?.cpu)
+    const gpuId = normalizeString(req.body?.gpu_id ?? req.body?.gpu)
+    const ramId = normalizeString(req.body?.ram_id ?? req.body?.ram)
+    const storageId = normalizeString(req.body?.storage_id ?? req.body?.storage)
+    const coolingId = normalizeString(req.body?.cooling_id ?? req.body?.cooling)
+    const psuId = normalizeString(req.body?.psu_id ?? req.body?.psu)
+    const caseId = normalizeString(req.body?.case_id ?? req.body?.case)
+    const motherboardId = normalizeString(
+      req.body?.motherboard_id ?? req.body?.motherboard,
     )
 
-    return res.json({ configurations: result.rows })
-  } catch (error) {
-    console.error('Greška pri dohvaćanju konfiguracija:', error)
-    return res.status(500).json({ message: 'Interna greška poslužitelja.' })
-  }
-})
-
-router.post('/configurations', authMiddleware, async (req: AuthenticatedRequest, res) => {
-  const userId = req.user?.userId
-
-  if (!userId) {
-    return res.status(401).json({ message: 'Niste prijavljeni.' })
-  }
-
-  const name = normalizeString(req.body?.name) || 'Moja konfiguracija'
-  const cpuId = normalizeString(req.body?.cpu_id ?? req.body?.cpu)
-  const gpuId = normalizeString(req.body?.gpu_id ?? req.body?.gpu)
-  const ramId = normalizeString(req.body?.ram_id ?? req.body?.ram)
-  const storageId = normalizeString(req.body?.storage_id ?? req.body?.storage)
-  const coolingId = normalizeString(req.body?.cooling_id ?? req.body?.cooling)
-  const psuId = normalizeString(req.body?.psu_id ?? req.body?.psu)
-  const caseId = normalizeString(req.body?.case_id ?? req.body?.case)
-  const motherboardId = normalizeString(req.body?.motherboard_id ?? req.body?.motherboard)
-
-  try {
-    const result = await client.query(
-      `
+    try {
+      const result = await client.query(
+        `
         INSERT INTO konfiguracije (
           user_id,
           name,
@@ -228,103 +270,140 @@ router.post('/configurations', authMiddleware, async (req: AuthenticatedRequest,
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING *
       `,
-      [userId, name, cpuId, gpuId, ramId, storageId, coolingId, psuId, caseId, motherboardId],
-    )
+        [
+          userId,
+          name,
+          cpuId,
+          gpuId,
+          ramId,
+          storageId,
+          coolingId,
+          psuId,
+          caseId,
+          motherboardId,
+        ],
+      )
 
-    return res.status(201).json({ configuration: result.rows[0] })
-  } catch (error) {
-    console.error('Greška pri stvaranju konfiguracije:', error)
-    return res.status(500).json({ message: 'Interna greška poslužitelja.' })
-  }
-})
+      return res.status(201).json({ configuration: result.rows[0] })
+    } catch {
+      return res.status(500).json({ message: 'Interna greška poslužitelja.' })
+    }
+  },
+)
 
-router.put('/configurations/:id', authMiddleware, async (req: AuthenticatedRequest, res) => {
-  const userId = req.user?.userId
-  const configurationId = Number(req.params.id)
+router.put(
+  '/configurations/:id',
+  authMiddleware,
+  async (req: AuthenticatedRequest, res) => {
+    const userId = req.user?.userId
+    const configurationId = Number(req.params.id)
 
-  if (!userId) {
-    return res.status(401).json({ message: 'Niste prijavljeni.' })
-  }
-
-  if (!Number.isInteger(configurationId)) {
-    return res.status(400).json({ message: 'Neispravan ID konfiguracije.' })
-  }
-
-  const payload = req.body ?? {}
-  const assignments: string[] = []
-  const values: unknown[] = []
-
-  const name = normalizeString(payload.name)
-  if (name) {
-    assignments.push('name = $3')
-    values.push(name)
-  }
-
-  for (const key of ['cpu_id', 'gpu_id', 'ram_id', 'storage_id', 'cooling_id', 'psu_id', 'case_id', 'motherboard_id'] as const) {
-    const rawValue = payload[key]
-    const value = typeof rawValue === 'string' ? rawValue.trim() : rawValue == null ? null : String(rawValue)
-
-    if (value === undefined) {
-      continue
+    if (!userId) {
+      return res.status(401).json({ message: 'Niste prijavljeni.' })
     }
 
-    assignments.push(`${key} = $${values.length + 3}`)
-    values.push(value)
-  }
+    if (!Number.isInteger(configurationId)) {
+      return res.status(400).json({ message: 'Neispravan ID konfiguracije.' })
+    }
 
-  if (assignments.length === 0) {
-    return res.status(400).json({ message: 'Nema promjena za ažuriranje konfiguracije.' })
-  }
+    const payload = req.body ?? {}
+    const assignments: string[] = []
+    const values: unknown[] = []
 
-  try {
-    const result = await client.query(
-      `
+    const name = normalizeString(payload.name)
+    if (name) {
+      assignments.push('name = $3')
+      values.push(name)
+    }
+
+    for (const key of [
+      'cpu_id',
+      'gpu_id',
+      'ram_id',
+      'storage_id',
+      'cooling_id',
+      'psu_id',
+      'case_id',
+      'motherboard_id',
+    ] as const) {
+      const rawValue = payload[key]
+      const value =
+        typeof rawValue === 'string'
+          ? rawValue.trim()
+          : rawValue == null
+            ? null
+            : String(rawValue)
+
+      if (value === undefined) {
+        continue
+      }
+
+      assignments.push(`${key} = $${values.length + 3}`)
+      values.push(value)
+    }
+
+    if (assignments.length === 0) {
+      return res
+        .status(400)
+        .json({ message: 'Nema promjena za ažuriranje konfiguracije.' })
+    }
+
+    try {
+      const result = await client.query(
+        `
         UPDATE konfiguracije
         SET ${assignments.join(', ')}
         WHERE id = $1 AND user_id = $2
         RETURNING *
       `,
-      [configurationId, userId, ...values],
-    )
+        [configurationId, userId, ...values],
+      )
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'Konfiguracija nije pronađena.' })
+      if (result.rowCount === 0) {
+        return res
+          .status(404)
+          .json({ message: 'Konfiguracija nije pronađena.' })
+      }
+
+      return res.json({ configuration: result.rows[0] })
+    } catch {
+      return res.status(500).json({ message: 'Interna greška poslužitelja.' })
+    }
+  },
+)
+
+router.delete(
+  '/configurations/:id',
+  authMiddleware,
+  async (req: AuthenticatedRequest, res) => {
+    const userId = req.user?.userId
+    const configurationId = Number(req.params.id)
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Niste prijavljeni.' })
     }
 
-    return res.json({ configuration: result.rows[0] })
-  } catch (error) {
-    console.error('Greška pri ažuriranju konfiguracije:', error)
-    return res.status(500).json({ message: 'Interna greška poslužitelja.' })
-  }
-})
-
-router.delete('/configurations/:id', authMiddleware, async (req: AuthenticatedRequest, res) => {
-  const userId = req.user?.userId
-  const configurationId = Number(req.params.id)
-
-  if (!userId) {
-    return res.status(401).json({ message: 'Niste prijavljeni.' })
-  }
-
-  if (!Number.isInteger(configurationId)) {
-    return res.status(400).json({ message: 'Neispravan ID konfiguracije.' })
-  }
-
-  try {
-    const result = await client.query(
-      'DELETE FROM konfiguracije WHERE id = $1 AND user_id = $2 RETURNING id',
-      [configurationId, userId],
-    )
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'Konfiguracija nije pronađena.' })
+    if (!Number.isInteger(configurationId)) {
+      return res.status(400).json({ message: 'Neispravan ID konfiguracije.' })
     }
 
-    return res.json({ message: 'Konfiguracija je uspješno obrisana.' })
-  } catch (error) {
-    console.error('Greška pri brisanju konfiguracije:', error)
-    return res.status(500).json({ message: 'Interna greška poslužitelja.' })
-  }
-})
+    try {
+      const result = await client.query(
+        'DELETE FROM konfiguracije WHERE id = $1 AND user_id = $2 RETURNING id',
+        [configurationId, userId],
+      )
+
+      if (result.rowCount === 0) {
+        return res
+          .status(404)
+          .json({ message: 'Konfiguracija nije pronađena.' })
+      }
+
+      return res.json({ message: 'Konfiguracija je uspješno obrisana.' })
+    } catch {
+      return res.status(500).json({ message: 'Interna greška poslužitelja.' })
+    }
+  },
+)
 
 export default router

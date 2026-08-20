@@ -14,10 +14,24 @@ import { motherboards } from '../data/motherboards'
 import { psus } from '../data/psus'
 import { rams } from '../data/rams'
 import { storages } from '../data/storages'
-import type { Component, ComponentCategory, Configuration } from '../types/hardware'
-import { calculateEstimatedTdp, calculateTotalPrice } from '../utils/calculations'
+import type {
+  Component,
+  ComponentCategory,
+  Configuration,
+} from '../types/hardware'
+import {
+  calculateEstimatedTdp,
+  calculateTotalPrice,
+} from '../utils/calculations'
 import { checkCompatibility } from '../utils/compatibility'
-import { defaultCategoryFilters, filterComponentsByCategory, normalizeRange, type CategoryFilterState, type RangeState } from '../components/configurator/filtering'
+import {
+  defaultCategoryFilters,
+  filterComponentsByCategory,
+  normalizeRange,
+  type CategoryFilterState,
+  type RangeState,
+} from '../components/configurator/filtering'
+import { getApiErrorMessage } from '../utils/error-message'
 
 type ConfiguratorPageProps = {
   configuration: Configuration
@@ -84,17 +98,23 @@ export function ConfiguratorPage({
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const initialCategory = (searchParams.get('category') as ComponentCategory) || 'cpu'
+  const initialCategory =
+    (searchParams.get('category') as ComponentCategory) || 'cpu'
 
-  const [activeCategory, setActiveCategory] = useState<ComponentCategory>(initialCategory)
+  const [activeCategory, setActiveCategory] =
+    useState<ComponentCategory>(initialCategory)
   const [isSummaryOpen, setIsSummaryOpen] = useState(true)
-  const [editingConfigurationId, setEditingConfigurationId] = useState<number | null>(null)
-  const [configurationName, setConfigurationName] = useState('Moja konfiguracija')
-  const [categoryFilters, setCategoryFilters] = useState<Record<ComponentCategory, CategoryFilterState>>(
-    defaultCategoryFilters,
-  )
+  const [editingConfigurationId, setEditingConfigurationId] = useState<
+    number | null
+  >(null)
+  const [configurationName, setConfigurationName] =
+    useState('Moja konfiguracija')
+  const [categoryFilters, setCategoryFilters] = useState<
+    Record<ComponentCategory, CategoryFilterState>
+  >(defaultCategoryFilters)
 
-  const activeFilters = categoryFilters[activeCategory] ?? defaultCategoryFilters[activeCategory]
+  const activeFilters =
+    categoryFilters[activeCategory] ?? defaultCategoryFilters[activeCategory]
   const priceRange = activeFilters.priceRange as RangeState
   const tdpRange = activeFilters.tdpRange as RangeState
 
@@ -130,7 +150,13 @@ export function ConfiguratorPage({
     Object.values(configuration).filter(Boolean).length
 
   const filteredComponents = useMemo(() => {
-    return filterComponentsByCategory(catalog[activeCategory], activeCategory, activeFilters, priceRange, tdpRange)
+    return filterComponentsByCategory(
+      catalog[activeCategory],
+      activeCategory,
+      activeFilters,
+      priceRange,
+      tdpRange,
+    )
   }, [activeCategory, activeFilters, priceRange, tdpRange])
 
   const compatibility = useMemo(
@@ -155,7 +181,10 @@ export function ConfiguratorPage({
     toast.custom(
       (t) => (
         <div className="toast-confirmation">
-          <p>Želite li stvarno ukloniti {selectedComponent.name} iz konfiguracije?</p>
+          <p>
+            Želite li stvarno ukloniti {selectedComponent.name} iz
+            konfiguracije?
+          </p>
           <div className="toast-confirmation__actions">
             <Button
               type="button"
@@ -258,21 +287,30 @@ export function ConfiguratorPage({
     }
 
     const loadingToastId = toast.loading(
-      editingConfigurationId ? 'Ažuriranje konfiguracije...' : 'Spremanje konfiguracije...',
+      editingConfigurationId
+        ? 'Ažuriranje konfiguracije...'
+        : 'Spremanje konfiguracije...',
     )
 
     try {
       if (editingConfigurationId) {
         await updateConfiguration(editingConfigurationId, payload)
-        toast.success('Konfiguracija je uspješno ažurirana.', { id: loadingToastId })
+        toast.success('Konfiguracija je uspješno ažurirana.', {
+          id: loadingToastId,
+        })
         navigate('/moje-konfiguracije')
         return
       }
 
       await saveConfiguration(payload)
-      toast.success('Konfiguracija je uspješno spremljena.', { id: loadingToastId })
-    } catch (error: any) {
-      const message = error?.response?.data?.message ?? 'Nismo uspjeli spremiti konfiguraciju.'
+      toast.success('Konfiguracija je uspješno spremljena.', {
+        id: loadingToastId,
+      })
+    } catch (error: unknown) {
+      const message = getApiErrorMessage(
+        error,
+        'Nismo uspjeli spremiti konfiguraciju.',
+      )
       toast.error(message, { id: loadingToastId })
     }
   }
@@ -303,7 +341,11 @@ export function ConfiguratorPage({
           </Button>
         </header>
 
-        <div className="category-tabs" role="tablist" aria-label="Kategorije komponenti">
+        <div
+          className="category-tabs"
+          role="tablist"
+          aria-label="Kategorije komponenti"
+        >
           {categories.map((category) => (
             <Button
               key={category}
@@ -323,12 +365,19 @@ export function ConfiguratorPage({
 
         <div className="catalog-content">
           <div className="catalog-grid-wrapper">
-            <div id={`panel-${activeCategory}`} className="catalog-grid" role="tabpanel">
+            <div
+              id={`panel-${activeCategory}`}
+              className="catalog-grid"
+              role="tabpanel"
+            >
               {filteredComponents.length === 0 ? (
-                <p className="empty-state">Nema komponenti koje odgovaraju odabranim filtrima.</p>
+                <p className="empty-state">
+                  Nema komponenti koje odgovaraju odabranim filtrima.
+                </p>
               ) : (
                 filteredComponents.map((component) => {
-                  const selected = configuration[activeCategory]?.id === component.id
+                  const selected =
+                    configuration[activeCategory]?.id === component.id
 
                   return (
                     <ComponentCard

@@ -12,7 +12,11 @@ export function Input({ label, id, className = '', ...props }: InputProps) {
       <label htmlFor={inputId} className="input-field__label">
         {label}
       </label>
-      <input id={inputId} className={['input', className].filter(Boolean).join(' ')} {...props} />
+      <input
+        id={inputId}
+        className={['input', className].filter(Boolean).join(' ')}
+        {...props}
+      />
     </div>
   )
 }

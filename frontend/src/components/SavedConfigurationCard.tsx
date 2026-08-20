@@ -1,34 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button } from './Button'
-import { cases } from '../data/cases'
-import { coolings } from '../data/coolings'
-import { cpus } from '../data/cpus'
-import { gpus } from '../data/gpus'
-import { motherboards } from '../data/motherboards'
-import { psus } from '../data/psus'
-import { rams } from '../data/rams'
-import { storages } from '../data/storages'
-import type { Component, ComponentCategory } from '../types/hardware'
 import type { SavedConfiguration } from '../api'
-
-const allComponents: Record<string, Component> = {}
-
-for (const list of [cpus, gpus, rams, storages, motherboards, psus, cases, coolings]) {
-  for (const item of list) {
-    allComponents[item.id] = item
-  }
-}
-
-const categoryOrder: Array<{ key: ComponentCategory; label: string }> = [
-  { key: 'cpu', label: 'CPU' },
-  { key: 'gpu', label: 'GPU' },
-  { key: 'ram', label: 'RAM' },
-  { key: 'storage', label: 'Pohrana' },
-  { key: 'motherboard', label: 'Matična ploča' },
-  { key: 'psu', label: 'Napajanje' },
-  { key: 'case', label: 'Kućište' },
-  { key: 'cooling', label: 'Hlađenje' },
-]
+import {
+  allComponents,
+  configurationCategoryOrder,
+} from '../utils/configuration-metadata'
 
 function getComponentName(value: string | null | undefined) {
   if (!value) {
@@ -39,13 +15,15 @@ function getComponentName(value: string | null | undefined) {
 }
 
 function getConfigurationSummary(configuration: SavedConfiguration) {
-  const selectedComponents = categoryOrder.filter(({ key }) => {
-    const value = configuration[`${key}_id` as keyof SavedConfiguration] as string | null | undefined
+  const selectedComponents = configurationCategoryOrder.filter(({ key }) => {
+    const value = configuration[`${key}_id` as keyof SavedConfiguration] as
+      string | null | undefined
     return Boolean(value)
   }).length
 
-  const totalPrice = categoryOrder.reduce((sum, { key }) => {
-    const value = configuration[`${key}_id` as keyof SavedConfiguration] as string | null | undefined
+  const totalPrice = configurationCategoryOrder.reduce((sum, { key }) => {
+    const value = configuration[`${key}_id` as keyof SavedConfiguration] as
+      string | null | undefined
     if (!value) {
       return sum
     }
@@ -54,8 +32,9 @@ function getConfigurationSummary(configuration: SavedConfiguration) {
     return sum + (component?.price ?? 0)
   }, 0)
 
-  const totalTdp = categoryOrder.reduce((sum, { key }) => {
-    const value = configuration[`${key}_id` as keyof SavedConfiguration] as string | null | undefined
+  const totalTdp = configurationCategoryOrder.reduce((sum, { key }) => {
+    const value = configuration[`${key}_id` as keyof SavedConfiguration] as
+      string | null | undefined
     if (!value) {
       return sum
     }
@@ -89,11 +68,9 @@ export function SavedConfigurationCard({
   onRename,
 }: SavedConfigurationCardProps) {
   const [isRenaming, setIsRenaming] = useState(false)
-  const [draftName, setDraftName] = useState(configuration.name || 'Moja konfiguracija')
-
-  useEffect(() => {
-    setDraftName(configuration.name || 'Moja konfiguracija')
-  }, [configuration.name])
+  const [draftName, setDraftName] = useState(
+    configuration.name || 'Moja konfiguracija',
+  )
 
   const summary = getConfigurationSummary(configuration)
 
@@ -125,10 +102,18 @@ export function SavedConfigurationCard({
               />
 
               <div className="saved-configuration-card__rename-actions">
-                <Button type="button" variant="primary" onClick={() => void handleRenameSubmit()}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => void handleRenameSubmit()}
+                >
                   Spremi
                 </Button>
-                <Button type="button" variant="ghost" onClick={() => setIsRenaming(false)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setIsRenaming(false)}
+                >
                   Odustani
                 </Button>
               </div>
@@ -139,7 +124,14 @@ export function SavedConfigurationCard({
         </div>
 
         <div className="saved-configuration-card__header-actions">
-          <Button type="button" variant="secondary" onClick={() => setIsRenaming(true)}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              setDraftName(configuration.name || 'Moja konfiguracija')
+              setIsRenaming(true)
+            }}
+          >
             Preimenuj konfiguraciju
           </Button>
           <Button type="button" variant="secondary" onClick={onEdit}>
@@ -176,8 +168,10 @@ export function SavedConfigurationCard({
 
       {isExpanded && (
         <div className="saved-configuration-card__list">
-          {categoryOrder.map(({ key, label }) => {
-            const value = configuration[`${key}_id` as keyof SavedConfiguration] as string | null | undefined
+          {configurationCategoryOrder.map(({ key, label }) => {
+            const value = configuration[
+              `${key}_id` as keyof SavedConfiguration
+            ] as string | null | undefined
             const component = value ? allComponents[value] : undefined
 
             return (

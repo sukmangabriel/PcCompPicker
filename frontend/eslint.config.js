@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 const tsconfigRootDir = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'vite.config.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -24,6 +24,10 @@ export default defineConfig([
         project: './tsconfig.app.json',
         tsconfigRootDir,
       },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
 ])

@@ -36,7 +36,11 @@ export function ConfiguratorFilterPanel({
     <div className="filter-panel" aria-label="Filtri za komponente">
       <div className="filter-panel__header">
         <h2>Filtriraj komponente</h2>
-        <button type="button" className="filter-panel__reset" onClick={resetFilters}>
+        <button
+          type="button"
+          className="filter-panel__reset"
+          onClick={resetFilters}
+        >
           Reset
         </button>
       </div>
@@ -49,8 +53,12 @@ export function ConfiguratorFilterPanel({
           minLimit={0}
           maxLimit={5000}
           showSliders
-          onMinChange={(value) => updateRangeFilter('priceRange', 'min', value, 0, 5000)}
-          onMaxChange={(value) => updateRangeFilter('priceRange', 'max', value, 0, 5000)}
+          onMinChange={(value) =>
+            updateRangeFilter('priceRange', 'min', value, 0, 5000)
+          }
+          onMaxChange={(value) =>
+            updateRangeFilter('priceRange', 'max', value, 0, 5000)
+          }
         />
 
         <RangeFilterField
@@ -60,8 +68,12 @@ export function ConfiguratorFilterPanel({
           minLimit={0}
           maxLimit={1000}
           showSliders
-          onMinChange={(value) => updateRangeFilter('tdpRange', 'min', value, 0, 1000)}
-          onMaxChange={(value) => updateRangeFilter('tdpRange', 'max', value, 0, 1000)}
+          onMinChange={(value) =>
+            updateRangeFilter('tdpRange', 'min', value, 0, 1000)
+          }
+          onMaxChange={(value) =>
+            updateRangeFilter('tdpRange', 'max', value, 0, 1000)
+          }
         />
       </div>
 

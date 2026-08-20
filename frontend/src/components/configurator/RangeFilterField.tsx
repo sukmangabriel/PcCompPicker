@@ -21,7 +21,9 @@ export function RangeFilterField({
   compact = false,
   showSliders = false,
 }: RangeFilterFieldProps) {
-  const className = compact ? 'filter-group filter-group--compact' : 'filter-group'
+  const className = compact
+    ? 'filter-group filter-group--compact'
+    : 'filter-group'
 
   return (
     <div className={className}>

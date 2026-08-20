@@ -16,13 +16,9 @@ app.use('/api', authRoutes)
 async function startServer() {
   try {
     await client.connect()
-    console.log('Povezani ste na bazu podataka.')
 
-    app.listen(port, () => {
-      console.log(`Server radi na http://localhost:${port}`)
-    })
+    app.listen(port, () => {})
   } catch (error) {
-    console.error('Neuspjela konekcija s bazom:', error)
     process.exit(1)
   }
 }

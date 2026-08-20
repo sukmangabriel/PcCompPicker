@@ -11,9 +11,15 @@ type ComponentCardProps = {
 function getComponentHighlights(component: Component): string[] {
   switch (component.category) {
     case 'cpu':
-      return [`${component.cores}/${component.threads} T/C`, `${component.baseClockGHz.toFixed(2)} GHz`]
+      return [
+        `${component.cores}/${component.threads} T/C`,
+        `${component.baseClockGHz.toFixed(2)} GHz`,
+      ]
     case 'gpu':
-      return [`${component.memoryGB} GB ${component.memoryType}`, `${component.lengthMm} mm`]
+      return [
+        `${component.memoryGB} GB ${component.memoryType}`,
+        `${component.lengthMm} mm`,
+      ]
     case 'ram':
       return [`${component.modules} modules`, `${component.speedMHz} MHz`]
     case 'storage':
@@ -33,7 +39,10 @@ function getComponentHighlights(component: Component): string[] {
         component.modular ? 'Modular' : 'Non-modular',
       ]
     case 'case':
-      return [`${component.maxCpuCoolerHeightMm} mm CPU cooler`, component.supportedPsuFormFactors.join(', ')]
+      return [
+        `${component.maxCpuCoolerHeightMm} mm CPU cooler`,
+        component.supportedPsuFormFactors.join(', '),
+      ]
     case 'cooling':
       return [`${component.heightMm} mm`]
     default:
@@ -69,9 +78,15 @@ export function ComponentCard({
         <p>{component.manufacturer}</p>
         <small>{summary}</small>
 
-        <div className="component-tags" aria-label={`${component.name} atributi`}>
+        <div
+          className="component-tags"
+          aria-label={`${component.name} atributi`}
+        >
           {highlights.slice(0, 4).map((highlight) => (
-            <span key={`${component.id}-${highlight}`} className="component-tag">
+            <span
+              key={`${component.id}-${highlight}`}
+              className="component-tag"
+            >
               {highlight}
             </span>
           ))}

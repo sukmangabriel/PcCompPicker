@@ -262,21 +262,29 @@ export function CategoryFilterFields({
           minLimit={0}
           maxLimit={8000}
           compact
-          onMinChange={(value) => updateCategoryFilter('minMaxMemorySpeedMHz', value)}
-          onMaxChange={(value) => updateCategoryFilter('maxMaxMemorySpeedMHz', value)}
+          onMinChange={(value) =>
+            updateCategoryFilter('minMaxMemorySpeedMHz', value)
+          }
+          onMaxChange={(value) =>
+            updateCategoryFilter('maxMaxMemorySpeedMHz', value)
+          }
         />
 
         <SelectFilterField
           label="CPU power connector"
           value={activeFilters.cpuPowerConnector}
-          options={toOptions(motherboards.map((item) => item.cpuPowerConnector))}
+          options={toOptions(
+            motherboards.map((item) => item.cpuPowerConnector),
+          )}
           onChange={(value) => updateCategoryFilter('cpuPowerConnector', value)}
         />
 
         <SelectFilterField
           label="Podržani storage interface"
           value={activeFilters.storageInterface}
-          options={toOptions(motherboards.flatMap((item) => item.supportedStorageInterfaces))}
+          options={toOptions(
+            motherboards.flatMap((item) => item.supportedStorageInterfaces),
+          )}
           onChange={(value) => updateCategoryFilter('storageInterface', value)}
         />
 
@@ -363,14 +371,20 @@ export function CategoryFilterFields({
         <SelectFilterField
           label="Form factor matične ploče"
           value={activeFilters.motherboardFormFactor}
-          options={toOptions(cases.flatMap((item) => item.supportedMotherboardFormFactors))}
-          onChange={(value) => updateCategoryFilter('motherboardFormFactor', value)}
+          options={toOptions(
+            cases.flatMap((item) => item.supportedMotherboardFormFactors),
+          )}
+          onChange={(value) =>
+            updateCategoryFilter('motherboardFormFactor', value)
+          }
         />
 
         <SelectFilterField
           label="Form factor napajanja"
           value={activeFilters.psuFormFactor}
-          options={toOptions(cases.flatMap((item) => item.supportedPsuFormFactors))}
+          options={toOptions(
+            cases.flatMap((item) => item.supportedPsuFormFactors),
+          )}
           onChange={(value) => updateCategoryFilter('psuFormFactor', value)}
         />
 
@@ -392,8 +406,12 @@ export function CategoryFilterFields({
           minLimit={0}
           maxLimit={220}
           compact
-          onMinChange={(value) => updateCategoryFilter('minCpuCoolerHeight', value)}
-          onMaxChange={(value) => updateCategoryFilter('maxCpuCoolerHeight', value)}
+          onMinChange={(value) =>
+            updateCategoryFilter('minCpuCoolerHeight', value)
+          }
+          onMaxChange={(value) =>
+            updateCategoryFilter('maxCpuCoolerHeight', value)
+          }
         />
       </>
     )

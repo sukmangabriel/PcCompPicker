@@ -9,43 +9,23 @@ import {
 } from '../api'
 import { Button } from '../components/Button'
 import { SavedConfigurationCard } from '../components/SavedConfigurationCard'
-import { cases } from '../data/cases'
-import { coolings } from '../data/coolings'
-import { cpus } from '../data/cpus'
-import { gpus } from '../data/gpus'
-import { motherboards } from '../data/motherboards'
-import { psus } from '../data/psus'
-import { rams } from '../data/rams'
-import { storages } from '../data/storages'
-import type { Component, ComponentCategory, Configuration } from '../types/hardware'
+import type { Configuration } from '../types/hardware'
+import {
+  allComponents,
+  configurationCategoryOrder,
+} from '../utils/configuration-metadata'
+import { getApiErrorMessage } from '../utils/error-message'
 
 type UserConfigurationsProps = {
   loggedInUser: string | null
 }
 
-const allComponents: Record<string, Component> = {}
-
-for (const list of [cpus, gpus, rams, storages, motherboards, psus, cases, coolings]) {
-  for (const item of list) {
-    allComponents[item.id] = item
-  }
-}
-
-const categoryOrder: Array<{ key: ComponentCategory; label: string }> = [
-  { key: 'cpu', label: 'CPU' },
-  { key: 'gpu', label: 'GPU' },
-  { key: 'ram', label: 'RAM' },
-  { key: 'storage', label: 'Pohrana' },
-  { key: 'motherboard', label: 'Matična ploča' },
-  { key: 'psu', label: 'Napajanje' },
-  { key: 'case', label: 'Kućište' },
-  { key: 'cooling', label: 'Hlađenje' },
-]
-
 export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
   const [configurations, setConfigurations] = useState<SavedConfiguration[]>([])
   const [loading, setLoading] = useState(false)
-  const [expandedConfigs, setExpandedConfigs] = useState<Record<number, boolean>>({})
+  const [expandedConfigs, setExpandedConfigs] = useState<
+    Record<number, boolean>
+  >({})
   const navigate = useNavigate()
 
   const loadConfigurations = useMemo(
@@ -59,8 +39,10 @@ export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
         setLoading(true)
         const savedConfigurations = await fetchConfigurations()
         setConfigurations(savedConfigurations)
-      } catch (error: any) {
-        toast.error(error?.response?.data?.message ?? 'Nismo uspjeli dohvatiti konfiguracije.')
+      } catch (error: unknown) {
+        toast.error(
+          getApiErrorMessage(error, 'Nismo uspjeli dohvatiti konfiguracije.'),
+        )
       } finally {
         setLoading(false)
       }
@@ -75,8 +57,10 @@ export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
   const handleEdit = (configuration: SavedConfiguration) => {
     const nextConfiguration: Configuration = {}
 
-    for (const { key } of categoryOrder) {
-      const componentId = configuration[`${key}_id` as keyof SavedConfiguration] as string | null | undefined
+    for (const { key } of configurationCategoryOrder) {
+      const componentId = configuration[
+        `${key}_id` as keyof SavedConfiguration
+      ] as string | null | undefined
       if (!componentId) {
         continue
       }
@@ -105,22 +89,33 @@ export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
     }
 
     try {
-      const updatedConfiguration = await renameConfiguration(configurationId, trimmedName)
+      const updatedConfiguration = await renameConfiguration(
+        configurationId,
+        trimmedName,
+      )
       setConfigurations((current) =>
         current.map((item) =>
-          item.id === configurationId ? { ...item, name: updatedConfiguration.name } : item,
+          item.id === configurationId
+            ? { ...item, name: updatedConfiguration.name }
+            : item,
         ),
       )
       toast.success('Naziv konfiguracije je uspješno promijenjen.')
-    } catch (error: any) {
-      const message = error?.response?.data?.message ?? 'Nismo uspjeli promijeniti naziv konfiguracije.'
+    } catch (error: unknown) {
+      const message = getApiErrorMessage(
+        error,
+        'Nismo uspjeli promijeniti naziv konfiguracije.',
+      )
       toast.error(message)
     }
   }
 
   const handleDelete = async (configurationId: number) => {
-    const configuration = configurations.find((item) => item.id === configurationId)
-    const configurationName = configuration?.name || 'ova spremljena konfiguracija'
+    const configuration = configurations.find(
+      (item) => item.id === configurationId,
+    )
+    const configurationName =
+      configuration?.name || 'ova spremljena konfiguracija'
 
     toast.custom(
       (t) => (
@@ -135,15 +130,20 @@ export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
                 toast.dismiss(t.id)
                 try {
                   await deleteConfiguration(configurationId)
-                  setConfigurations((current) => current.filter((item) => item.id !== configurationId))
+                  setConfigurations((current) =>
+                    current.filter((item) => item.id !== configurationId),
+                  )
                   setExpandedConfigs((current) => {
                     const next = { ...current }
                     delete next[configurationId]
                     return next
                   })
                   toast.success('Konfiguracija je uspješno obrisana.')
-                } catch (error: any) {
-                  const message = error?.response?.data?.message ?? 'Nismo uspjeli obrisati konfiguraciju.'
+                } catch (error: unknown) {
+                  const message = getApiErrorMessage(
+                    error,
+                    'Nismo uspjeli obrisati konfiguraciju.',
+                  )
                   toast.error(message)
                 }
               }}
@@ -179,7 +179,10 @@ export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
       <main className="page-shell page-shell--compact">
         <section className="page-card">
           <h1>Moje konfiguracije</h1>
-          <p className="page-text">Prijavite se kako biste vidjeli i upravljali svojim spremljenim konfiguracijama.</p>
+          <p className="page-text">
+            Prijavite se kako biste vidjeli i upravljali svojim spremljenim
+            konfiguracijama.
+          </p>
         </section>
       </main>
     )
@@ -211,7 +214,9 @@ export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
                   onToggle={() => toggleConfiguration(configuration.id)}
                   onDelete={() => void handleDelete(configuration.id)}
                   onEdit={() => handleEdit(configuration)}
-                  onRename={(newName) => void handleRename(configuration.id, newName)}
+                  onRename={(newName) =>
+                    void handleRename(configuration.id, newName)
+                  }
                 />
               )
             })}

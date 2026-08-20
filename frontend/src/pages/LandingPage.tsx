@@ -151,7 +151,10 @@ export function LandingPage() {
 
                     <div className="landing-component-rows">
                       {catalog[category].map((component) => (
-                        <div key={component.id} className="landing-component-row">
+                        <div
+                          key={component.id}
+                          className="landing-component-row"
+                        >
                           <div>
                             <strong>{component.name}</strong>
                             <small>{component.manufacturer}</small>

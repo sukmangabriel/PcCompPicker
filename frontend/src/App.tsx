@@ -67,8 +67,8 @@ function App() {
                   if (authToken) {
                     await logoutUser()
                   }
-                } catch {
-                  // Ignoriramo grešku pri odjavi jer korisnik mora ostati odjavljen lokalno.
+                } catch (error: unknown) {
+                  void error
                 } finally {
                   setLoggedInUser(null)
                   setAuthToken(null)

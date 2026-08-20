@@ -132,7 +132,9 @@ export function ConfigurationSummary({
                 }}
                 disabled={selectedComponentCount === 0}
               >
-                {loggedInUser ? 'Spremi konfiguraciju' : 'Prijavite se za spremanje'}
+                {loggedInUser
+                  ? 'Spremi konfiguraciju'
+                  : 'Prijavite se za spremanje'}
               </Button>
             </div>
 

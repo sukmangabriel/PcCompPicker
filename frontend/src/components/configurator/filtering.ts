@@ -15,7 +15,10 @@ export type RangeState = {
 
 export type CategoryFilterState = Record<string, any>
 
-export const defaultCategoryFilters: Record<ComponentCategory, CategoryFilterState> = {
+export const defaultCategoryFilters: Record<
+  ComponentCategory,
+  CategoryFilterState
+> = {
   cpu: {
     priceRange: { min: 0, max: 5000 },
     tdpRange: { min: 0, max: 1000 },
@@ -111,7 +114,11 @@ function clampValue(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
 }
 
-export function normalizeRange(next: RangeState, minLimit: number, maxLimit: number): RangeState {
+export function normalizeRange(
+  next: RangeState,
+  minLimit: number,
+  maxLimit: number,
+): RangeState {
   const nextMin = clampValue(next.min, minLimit, maxLimit)
   const nextMax = clampValue(next.max, minLimit, maxLimit)
 
@@ -143,125 +150,214 @@ export function filterComponentsByCategory(
     switch (activeCategory) {
       case 'cpu': {
         const cpu = component as (typeof cpus)[number]
-        if (activeFilters.manufacturer !== 'all' && cpu.manufacturer !== activeFilters.manufacturer) {
+        if (
+          activeFilters.manufacturer !== 'all' &&
+          cpu.manufacturer !== activeFilters.manufacturer
+        ) {
           return false
         }
-        if (activeFilters.socket !== 'all' && cpu.socket !== activeFilters.socket) {
+        if (
+          activeFilters.socket !== 'all' &&
+          cpu.socket !== activeFilters.socket
+        ) {
           return false
         }
-        if (cpu.cores < activeFilters.minCores || cpu.cores > activeFilters.maxCores) {
+        if (
+          cpu.cores < activeFilters.minCores ||
+          cpu.cores > activeFilters.maxCores
+        ) {
           return false
         }
-        if (cpu.threads < activeFilters.minThreads || cpu.threads > activeFilters.maxThreads) {
+        if (
+          cpu.threads < activeFilters.minThreads ||
+          cpu.threads > activeFilters.maxThreads
+        ) {
           return false
         }
         return true
       }
       case 'gpu': {
         const gpu = component as (typeof gpus)[number]
-        if (activeFilters.manufacturer !== 'all' && gpu.manufacturer !== activeFilters.manufacturer) {
+        if (
+          activeFilters.manufacturer !== 'all' &&
+          gpu.manufacturer !== activeFilters.manufacturer
+        ) {
           return false
         }
-        if (activeFilters.interface !== 'all' && gpu.interface !== activeFilters.interface) {
+        if (
+          activeFilters.interface !== 'all' &&
+          gpu.interface !== activeFilters.interface
+        ) {
           return false
         }
-        if (activeFilters.memoryType !== 'all' && gpu.memoryType !== activeFilters.memoryType) {
+        if (
+          activeFilters.memoryType !== 'all' &&
+          gpu.memoryType !== activeFilters.memoryType
+        ) {
           return false
         }
-        if (gpu.memoryGB < activeFilters.minMemoryGB || gpu.memoryGB > activeFilters.maxMemoryGB) {
+        if (
+          gpu.memoryGB < activeFilters.minMemoryGB ||
+          gpu.memoryGB > activeFilters.maxMemoryGB
+        ) {
           return false
         }
         return true
       }
       case 'ram': {
         const ram = component as (typeof rams)[number]
-        if (activeFilters.memoryType !== 'all' && ram.memoryType !== activeFilters.memoryType) {
+        if (
+          activeFilters.memoryType !== 'all' &&
+          ram.memoryType !== activeFilters.memoryType
+        ) {
           return false
         }
-        if (ram.capacityGB < activeFilters.minCapacityGB || ram.capacityGB > activeFilters.maxCapacityGB) {
+        if (
+          ram.capacityGB < activeFilters.minCapacityGB ||
+          ram.capacityGB > activeFilters.maxCapacityGB
+        ) {
           return false
         }
-        if (ram.speedMHz < activeFilters.minSpeedMHz || ram.speedMHz > activeFilters.maxSpeedMHz) {
+        if (
+          ram.speedMHz < activeFilters.minSpeedMHz ||
+          ram.speedMHz > activeFilters.maxSpeedMHz
+        ) {
           return false
         }
-        if (ram.modules < activeFilters.minModules || ram.modules > activeFilters.maxModules) {
+        if (
+          ram.modules < activeFilters.minModules ||
+          ram.modules > activeFilters.maxModules
+        ) {
           return false
         }
         return true
       }
       case 'storage': {
         const storage = component as (typeof storages)[number]
-        if (activeFilters.storageType !== 'all' && storage.storageType !== activeFilters.storageType) {
+        if (
+          activeFilters.storageType !== 'all' &&
+          storage.storageType !== activeFilters.storageType
+        ) {
           return false
         }
-        if (activeFilters.formFactor !== 'all' && storage.formFactor !== activeFilters.formFactor) {
+        if (
+          activeFilters.formFactor !== 'all' &&
+          storage.formFactor !== activeFilters.formFactor
+        ) {
           return false
         }
-        if (activeFilters.interface !== 'all' && storage.interface !== activeFilters.interface) {
+        if (
+          activeFilters.interface !== 'all' &&
+          storage.interface !== activeFilters.interface
+        ) {
           return false
         }
-        if (storage.capacityGB < activeFilters.minCapacityGB || storage.capacityGB > activeFilters.maxCapacityGB) {
+        if (
+          storage.capacityGB < activeFilters.minCapacityGB ||
+          storage.capacityGB > activeFilters.maxCapacityGB
+        ) {
           return false
         }
         return true
       }
       case 'motherboard': {
         const motherboard = component as (typeof motherboards)[number]
-        if (activeFilters.socket !== 'all' && motherboard.socket !== activeFilters.socket) {
+        if (
+          activeFilters.socket !== 'all' &&
+          motherboard.socket !== activeFilters.socket
+        ) {
           return false
         }
-        if (activeFilters.chipset !== 'all' && motherboard.chipset !== activeFilters.chipset) {
+        if (
+          activeFilters.chipset !== 'all' &&
+          motherboard.chipset !== activeFilters.chipset
+        ) {
           return false
         }
-        if (activeFilters.memoryType !== 'all' && motherboard.memoryType !== activeFilters.memoryType) {
+        if (
+          activeFilters.memoryType !== 'all' &&
+          motherboard.memoryType !== activeFilters.memoryType
+        ) {
           return false
         }
-        if (activeFilters.formFactor !== 'all' && motherboard.formFactor !== activeFilters.formFactor) {
+        if (
+          activeFilters.formFactor !== 'all' &&
+          motherboard.formFactor !== activeFilters.formFactor
+        ) {
           return false
         }
-        if (activeFilters.pcieVersion !== 'all' && motherboard.pcieVersion !== activeFilters.pcieVersion) {
+        if (
+          activeFilters.pcieVersion !== 'all' &&
+          motherboard.pcieVersion !== activeFilters.pcieVersion
+        ) {
           return false
         }
-        if (motherboard.memorySlots < activeFilters.minMemorySlots || motherboard.memorySlots > activeFilters.maxMemorySlots) {
+        if (
+          motherboard.memorySlots < activeFilters.minMemorySlots ||
+          motherboard.memorySlots > activeFilters.maxMemorySlots
+        ) {
           return false
         }
-        if (motherboard.maxMemoryGB < activeFilters.minMaxMemoryGB || motherboard.maxMemoryGB > activeFilters.maxMaxMemoryGB) {
+        if (
+          motherboard.maxMemoryGB < activeFilters.minMaxMemoryGB ||
+          motherboard.maxMemoryGB > activeFilters.maxMaxMemoryGB
+        ) {
           return false
         }
-        if (motherboard.maxMemorySpeedMHz < activeFilters.minMaxMemorySpeedMHz || motherboard.maxMemorySpeedMHz > activeFilters.maxMaxMemorySpeedMHz) {
+        if (
+          motherboard.maxMemorySpeedMHz < activeFilters.minMaxMemorySpeedMHz ||
+          motherboard.maxMemorySpeedMHz > activeFilters.maxMaxMemorySpeedMHz
+        ) {
           return false
         }
-        if (activeFilters.cpuPowerConnector !== 'all' && motherboard.cpuPowerConnector !== activeFilters.cpuPowerConnector) {
+        if (
+          activeFilters.cpuPowerConnector !== 'all' &&
+          motherboard.cpuPowerConnector !== activeFilters.cpuPowerConnector
+        ) {
           return false
         }
         if (
           activeFilters.storageInterface !== 'all' &&
           !motherboard.supportedStorageInterfaces.some(
-            (interfaceValue: string) => interfaceValue === activeFilters.storageInterface,
+            (interfaceValue: string) =>
+              interfaceValue === activeFilters.storageInterface,
           )
         ) {
           return false
         }
-        if (motherboard.m2Slots < activeFilters.minM2Slots || motherboard.m2Slots > activeFilters.maxM2Slots) {
+        if (
+          motherboard.m2Slots < activeFilters.minM2Slots ||
+          motherboard.m2Slots > activeFilters.maxM2Slots
+        ) {
           return false
         }
-        if (motherboard.sataPorts < activeFilters.minSataPorts || motherboard.sataPorts > activeFilters.maxSataPorts) {
+        if (
+          motherboard.sataPorts < activeFilters.minSataPorts ||
+          motherboard.sataPorts > activeFilters.maxSataPorts
+        ) {
           return false
         }
         return true
       }
       case 'psu': {
         const psu = component as (typeof psus)[number]
-        if (activeFilters.formFactor !== 'all' && psu.formFactor !== activeFilters.formFactor) {
+        if (
+          activeFilters.formFactor !== 'all' &&
+          psu.formFactor !== activeFilters.formFactor
+        ) {
           return false
         }
-        if (activeFilters.efficiencyRating !== 'all' && psu.efficiencyRating !== activeFilters.efficiencyRating) {
+        if (
+          activeFilters.efficiencyRating !== 'all' &&
+          psu.efficiencyRating !== activeFilters.efficiencyRating
+        ) {
           return false
         }
         if (
           activeFilters.cpuPowerConnector !== 'all' &&
           !psu.cpuPowerConnectors.some(
-            (connector: string) => connector === activeFilters.cpuPowerConnector,
+            (connector: string) =>
+              connector === activeFilters.cpuPowerConnector,
           )
         ) {
           return false
@@ -272,14 +368,18 @@ export function filterComponentsByCategory(
             return false
           }
         }
-        if (psu.wattage < activeFilters.minWattage || psu.wattage > activeFilters.maxWattage) {
+        if (
+          psu.wattage < activeFilters.minWattage ||
+          psu.wattage > activeFilters.maxWattage
+        ) {
           return false
         }
         return true
       }
       case 'case': {
         const caseItem = component as (typeof cases)[number]
-        const selectedMotherboardFormFactor = activeFilters.motherboardFormFactor as string
+        const selectedMotherboardFormFactor =
+          activeFilters.motherboardFormFactor as string
         const selectedPsuFormFactor = activeFilters.psuFormFactor as string
 
         if (
@@ -292,27 +392,44 @@ export function filterComponentsByCategory(
         }
         if (
           activeFilters.psuFormFactor !== 'all' &&
-          !caseItem.supportedPsuFormFactors.some((formFactor) => formFactor === selectedPsuFormFactor)
+          !caseItem.supportedPsuFormFactors.some(
+            (formFactor) => formFactor === selectedPsuFormFactor,
+          )
         ) {
           return false
         }
-        if (caseItem.maxGpuLengthMm < activeFilters.minGpuLength || caseItem.maxGpuLengthMm > activeFilters.maxGpuLength) {
+        if (
+          caseItem.maxGpuLengthMm < activeFilters.minGpuLength ||
+          caseItem.maxGpuLengthMm > activeFilters.maxGpuLength
+        ) {
           return false
         }
-        if (caseItem.maxCpuCoolerHeightMm < activeFilters.minCpuCoolerHeight || caseItem.maxCpuCoolerHeightMm > activeFilters.maxCpuCoolerHeight) {
+        if (
+          caseItem.maxCpuCoolerHeightMm < activeFilters.minCpuCoolerHeight ||
+          caseItem.maxCpuCoolerHeightMm > activeFilters.maxCpuCoolerHeight
+        ) {
           return false
         }
         return true
       }
       case 'cooling': {
         const cooling = component as (typeof coolings)[number]
-        if (activeFilters.socket !== 'all' && !cooling.socketSupport.includes(activeFilters.socket)) {
+        if (
+          activeFilters.socket !== 'all' &&
+          !cooling.socketSupport.includes(activeFilters.socket)
+        ) {
           return false
         }
-        if (cooling.heightMm < activeFilters.minHeightMm || cooling.heightMm > activeFilters.maxHeightMm) {
+        if (
+          cooling.heightMm < activeFilters.minHeightMm ||
+          cooling.heightMm > activeFilters.maxHeightMm
+        ) {
           return false
         }
-        if (cooling.maxTdpW < activeFilters.minMaxTdpW || cooling.maxTdpW > activeFilters.maxMaxTdpW) {
+        if (
+          cooling.maxTdpW < activeFilters.minMaxTdpW ||
+          cooling.maxTdpW > activeFilters.maxMaxTdpW
+        ) {
           return false
         }
         return true
