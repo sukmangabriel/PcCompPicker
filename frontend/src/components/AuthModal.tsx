@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { loginUser, registerUser, type AuthResponse } from '../api'
 import { getApiErrorMessage } from '../utils/error-message'
 import { Button } from './Button'
@@ -21,11 +21,65 @@ export function AuthModal({
 }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>('login')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   const title = useMemo(
     () => (mode === 'login' ? 'Prijava' : 'Registracija'),
     [mode],
   )
+
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    const previouslyFocused = document.activeElement as HTMLElement | null
+    const dialog = dialogRef.current
+    const getFocusable = () =>
+      dialog
+        ? Array.from(
+            dialog.querySelectorAll<HTMLElement>(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+            ),
+          ).filter((el) => !el.hasAttribute('disabled'))
+        : []
+
+    getFocusable()[0]?.focus()
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose()
+        return
+      }
+
+      if (event.key !== 'Tab') {
+        return
+      }
+
+      const focusable = getFocusable()
+      if (focusable.length === 0) {
+        return
+      }
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      previouslyFocused?.focus()
+    }
+  }, [isOpen, onClose])
 
   if (!isOpen) {
     return null
@@ -91,12 +145,21 @@ export function AuthModal({
   }
 
   return (
-    <div className="auth-modal__backdrop" onClick={onClose} aria-hidden="true">
+    <div className="auth-modal__backdrop">
+      <button
+        type="button"
+        className="auth-modal__backdrop-dismiss"
+        aria-hidden="true"
+        tabIndex={-1}
+        onClick={onClose}
+      />
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- stops backdrop click-to-close from firing when clicking inside the dialog surface */}
       <div
         className="auth-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-title"
+        ref={dialogRef}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="auth-modal__header">

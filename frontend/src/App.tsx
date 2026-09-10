@@ -100,6 +100,9 @@ function App() {
 
   return (
     <div className="app-shell">
+      <a href="#main-content" className="skip-link">
+        Preskoči na glavni sadržaj
+      </a>
       <Navbar
         isLoggedIn={loggedInUser !== null}
         onOpenAuth={() => setIsAuthModalOpen(true)}

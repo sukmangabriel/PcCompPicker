@@ -100,7 +100,7 @@ export function LandingPage() {
     useState<ComponentCategory | null>(null)
 
   return (
-    <main className="landing-page">
+    <main id="main-content" className="landing-page">
       <section className="hero-section hero-section--centered">
         <div className="hero-copy hero-copy--centered">
           <p className="eyebrow">Računalni konfigurator</p>

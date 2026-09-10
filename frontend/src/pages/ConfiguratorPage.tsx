@@ -328,7 +328,7 @@ export function ConfiguratorPage({
   }
 
   return (
-    <main className="config-layout">
+    <main id="main-content" className="config-layout">
       <aside className="filter-panel-wrapper">
         <ConfiguratorFilterPanel
           activeCategory={activeCategory}

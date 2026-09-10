@@ -174,7 +174,7 @@ export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
 
   if (!loggedInUser) {
     return (
-      <main className="page-shell page-shell--compact">
+      <main id="main-content" className="page-shell page-shell--compact">
         <section className="page-card">
           <h1>Moje konfiguracije</h1>
           <p className="page-text">
@@ -187,7 +187,7 @@ export function UserConfigurations({ loggedInUser }: UserConfigurationsProps) {
   }
 
   return (
-    <main className="page-shell page-shell--compact">
+    <main id="main-content" className="page-shell page-shell--compact">
       <section className="page-card">
         <div className="page-card__header">
           <div>
